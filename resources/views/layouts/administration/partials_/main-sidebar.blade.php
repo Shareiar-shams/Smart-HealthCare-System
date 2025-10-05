@@ -1,0 +1,64 @@
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="index3.html" class="brand-link">
+        <img src="{{asset(config('app.logo'))}}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text font-weight-light">{{config('app.name')}}</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                @if(Auth::guard('admin')->user()->image != 'noimage.jpg')
+                    <img src="{{ Auth::guard('admin')->user()->avatar }}" class="img-circle elevation-2" alt="User Image">
+                @else
+                    <img src="{{asset('assets/img/avatar4.png')}}" class="img-circle elevation-2" alt="User Image">
+                @endif
+            </div>
+            <div class="info">
+                <a href="{{route('admin.profile')}}" class="d-block">{{ Auth::guard('admin')->user()->name }}</a>
+            </div>
+        </div>
+
+        <!-- SidebarSearch Form -->
+        <div class="form-inline">
+            <div class="input-group" data-widget="sidebar-search">
+                <x-text-input class="form-control form-control-navbar" type="search" name="search" placeholder="Search" aria-label="Search" required autofocus autocomplete="search" />
+                <div class="input-group-append">
+                    <x-ad-nevigation-button class="btn btn-sidebar">
+                        <i class="fas fa-search fa-fw"></i>
+                    </x-ad-nevigation-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                @include('layouts.administration.partials_.menus.dashboard')
+                @include('layouts.administration.partials_.menus.categories.manage')
+                @include('layouts.administration.partials_.menus.product-type.manage')
+                @include('layouts.administration.partials_.menus.product.manage')
+                @include('layouts.administration.partials_.menus.orders.manage')
+                @include('layouts.administration.partials_.menus.digital-product.manage')
+                @include('layouts.administration.partials_.menus.mlm-user.manage')
+                @include('layouts.administration.partials_.menus.transactions')
+                @include('layouts.administration.partials_.menus.ecommerce.manage')
+                @include('layouts.administration.partials_.menus.tickets.manage')
+                @include('layouts.administration.partials_.menus.site.manage')
+                @include('layouts.administration.partials_.menus.faqs.manage')
+                @include('layouts.administration.partials_.menus.pages')
+                @include('layouts.administration.partials_.menus.social-icon')
+                @include('layouts.administration.partials_.menus.customers-list')
+                @include('layouts.administration.partials_.menus.subscribers-list')
+                @include('layouts.administration.partials_.menus.email-lists')
+                @include('layouts.administration.partials_.menus.system-user.manage')
+                @include('layouts.administration.partials_.menus.cache-clear')
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
