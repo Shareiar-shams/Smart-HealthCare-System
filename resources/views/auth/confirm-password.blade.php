@@ -1,27 +1,52 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-    </div>
+@extends('layouts.auth.app')
 
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
+@section('page_title', 'Confirm Password')
+@section('body_class', 'login-page')
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
+@section('content')
+    <div class="login-box">
+        <!-- /.login-logo -->
+        <div class="card card-outline card-primary">
+            <div class="card-header text-center">
+                <h4 class="h1"><b>Smart </b>HealthCare</h4>
+                {{-- <img src="{{ asset(config('app.logo')) }}" alt="logo" height="50" class="mb-2"/> --}}
+            </div>
+            <div class="card-body">
+                
+                <p class="login-box-msg">{{ __('This is a secure area of the application. Please confirm your password before continuing.') }}</p>
+
+
+                <form method="POST" action="{{ route('password.confirm') }}">
+                    @csrf
+
+                    <div class="input-group mb-3">
+                        <x-text-input id="password" class="mt-1 form-control"
                             type="password"
                             name="password"
                             required autocomplete="current-password" />
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                    </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+                    
 
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block">{{ __('Confirm') }}</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+            </div>
+            <!-- /.card-body -->
         </div>
-    </form>
-</x-guest-layout>
+        <!-- /.card -->
+        </div>
+        <!-- /.login-box -->
+@endsection
+
