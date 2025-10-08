@@ -54,4 +54,7 @@
 @section('admin_page_js')
     @show
 
+{{-- Include the main app JS (Alpine and other front-end bootstrapping) so components like x-modal work on admin pages --}}
+@vite(['resources/js/app.js'])
+
 

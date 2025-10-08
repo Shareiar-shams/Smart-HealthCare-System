@@ -4,11 +4,11 @@
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">
-        <h1 class="m-0">{{ ___('Dashboard') }}</h1>
+        <h1 class="m-0">{{ __('Dashboard') }}</h1>
     </div><!-- /.col -->
     <!-- breadcrumb -->
     <x-ad-breadcrumb :items="[
-        ['label' => 'Dashboard', 'url' => route('admin.home')],
+        ['label' => 'Dashboard', 'url' => route('dashboard')],
     ]" />
 @endsection
 @section('admin_vendor_css')
@@ -31,7 +31,7 @@
 @section('admin_page_css')
 @endsection
 
-@section('admin_main_content')
+@section('main_content')
 
     <div class="container-fluid">
         

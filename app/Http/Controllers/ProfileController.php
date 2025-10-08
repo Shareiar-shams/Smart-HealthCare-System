@@ -16,8 +16,10 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
+        $user = Auth::user();
+        $activities = $user->activities()->latest()->get()->take(10);
+        return view('admin.profile.index', [
+            'activities' => $activities,
         ]);
     }
 
@@ -32,7 +34,49 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user = $request->user();
+
+        $user->save();
+
+        // Persist role specific related data
+        // User -> profile (contact_no, address)
+        if ($user->role === 'User') {
+            $user->profile()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'contact_no' => $request->input('phone'),
+                    'address' => $request->input('position'),
+                ]
+            );
+        }
+
+        // Doctor -> doctor table (registration_no, specialization, hospital_name, chamber_address, available_time)
+        if ($user->role === 'Doctor') {
+            $user->doctor()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'registration_no' => $request->input('registration_no'),
+                    'specialization' => $request->input('specialization'),
+                    'hospital_name' => $request->input('hospital_name'),
+                    'chamber_address' => $request->input('chamber_address'),
+                    'available_time' => $request->input('available_time'),
+                ]
+            );
+        }
+
+        // Pharmacy -> pharmacy table (pharmacy_name, owner_name, license_number, location, contact_no)
+        if ($user->role === 'Pharmacy') {
+            $user->pharmacy()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'pharmacy_name' => $request->input('pharmacy_name'),
+                    'owner_name' => $request->input('owner_name'),
+                    'license_number' => $request->input('license_number'),
+                    'location' => $request->input('location'),
+                    'contact_no' => $request->input('contact_no'),
+                ]
+            );
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

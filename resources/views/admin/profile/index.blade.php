@@ -8,8 +8,8 @@
     </div><!-- /.col -->
     <!-- breadcrumb -->
     <x-ad-breadcrumb :items="[
-        ['label' => 'Dashboard', 'url' => route('admin.home')],
-        ['label' => 'Profile', 'url' => route('admin.profile')],
+        ['label' => 'Dashboard', 'url' => route('dashboard')],
+        ['label' => 'Profile', 'url' => route('profile.edit')],
     ]" />
 @endsection
 
@@ -66,77 +66,13 @@
     </style>
 @endsection
 
-@section('admin_main_content')
+@section('main_content')
     <!-- Display Validation Error -->
 	@include('admin.validationError.error')
     <!-- container-fluid -->
 	<div class="container-fluid">
         <div class="row">
-	        <div class="col-md-3">
-	            <!-- Profile Image -->
-	            <div class="card card-primary card-outline">
-		            <div class="card-body box-profile">
-		                <div class="text-center">
-		                  	<form action="{{route('admin.image.update', auth('admin')->user()->id)}}" method="post" enctype="multipart/form-data">
-								@csrf
-                                @method('PUT')
-				            	<p>
-                                    <input type="file" accept="image/*" name="image" id="file"  onchange="loadFile(event)" style="display: none;" required>
-                                </p>
-                                <label for="file" class="profile-img-wrapper" tabindex="0">
-                                    @if(auth('admin')->user()->image != 'noimage.jpg')
-                                        <img src="{{ auth('admin')->user()->thumbnail }}" class="profile-user-img img-responsive img-circle" alt="User profile picture" id="output">
-                                    @else
-                                        <img src="{{asset('admin/assets/img/avatar4.png')}}" class="profile-user-img img-responsive img-circle" alt="User profile picture" id="output">   
-                                    @endif
-                                    <span class="camera-icon" aria-hidden="true">
-                                        <i class="fa fa-camera" aria-hidden="true"></i>
-                                    </span>
-                                </label>
-								<input type="submit" class="btn btn-primary btn-block mt-3" style="font-weight: bold;" value="Change Profile Picture">
-							</form>
-		                </div>
-		                <h3 class="profile-username text-center">{{auth('admin')->user()->name}}</h3>
-
-				        <p class="text-muted text-center">{{auth('admin')->user()->position}}</p>
-				        <p class="text-muted text-center"> {{auth('admin')->user()->phone}}</p>
-
-		            </div>
-		            <!-- /.card-body -->
-	            </div>
-	            <!-- /.card -->
-
-	            <!-- About Me Box -->
-	            <div class="card card-primary">
-		            <div class="card-header">
-		                <h3 class="card-title">About Me</h3>
-		            </div>
-	              	<!-- /.card-header -->
-	              	<div class="card-body">
-	                	<strong><i class="fas fa-book mr-1"></i> Education</strong>
-
-	                	<p class="text-muted">
-	                  		B.S. in Computer Science from the University of Tennessee at Knoxville
-	                	</p>
-
-	                	<hr>
-
-	                	<strong><i class="fas fa-pencil-alt mr-1"></i> Skills</strong>
-
-		                <p class="text-muted">
-		                  	<span class="tag tag-danger">UI Design</span>
-		                  	<span class="tag tag-success">Coding</span>
-		                  	<span class="tag tag-info">Javascript</span>
-		                  	<span class="tag tag-warning">PHP</span>
-		                  	<span class="tag tag-primary">Node.js</span>
-		                </p>
-                    </div>
-	              	<!-- /.card-body -->
-	            </div>
-	            <!-- /.card -->
-	        </div>
-          	<!-- /.col -->
-            <div class="col-md-9">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills">
@@ -188,7 +124,7 @@
                         </ul>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ route('admin.activities.index') }}" class="btn btn-primary float-right">View All Activities</a>
+                        <a href="{{ route('activities.index') }}" class="btn btn-primary float-right">View All Activities</a>
                     </div>
                 </div>
                 <!-- /.Activity Log Section -->

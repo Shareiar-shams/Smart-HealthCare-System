@@ -11,14 +11,14 @@
         <!-- Sidebar user panel (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                @if(Auth::guard()->user()->image != 'noimage.jpg')
+                @if(Auth::guard()->user()->image)
                     <img src="{{ Auth::guard()->user()->avatar }}" class="img-circle elevation-2" alt="User Image">
                 @else
                     <img src="{{asset('assets/img/avatar4.png')}}" class="img-circle elevation-2" alt="User Image">
                 @endif
             </div>
             <div class="info">
-                <a href="{{route('admin.profile')}}" class="d-block">{{ Auth::guard()->user()->name }}</a>
+                <a href="{{route('profile.edit')}}" class="d-block">{{ Auth::guard()->user()->name }}</a>
             </div>
         </div>
 

@@ -6,7 +6,7 @@
 	        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
 	    </li>
       	<li class="nav-item d-none d-sm-inline-block">
-        	<a href="{{ route('admin.home') }}" class="nav-link">Home</a>
+        	<a href="{{ route('dashboard') }}" class="nav-link">Home</a>
       	</li>
     </ul>
 
@@ -55,7 +55,7 @@
 
 	    <li class="pt-2 nav-item dropdown user user-menu">
           	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-	            @if(Auth::guard()->user()->image != 'noimage.jpg')
+	            @if(Auth::guard()->user()->image)
 	                <img src="{{ Auth::guard()->user()->avatar }}" class="user-image" alt="User Image">
 	            @else
 	                <img src="{{asset('assets/img/avatar4.png')}}" class="user-image" alt="User Image">
@@ -64,7 +64,7 @@
             <ul class="dropdown-menu">
                 <!-- User image -->
                 <li class="user-header">
-                    @if(Auth::guard()->user()->image != 'noimage.jpg')
+                    @if(Auth::guard()->user()->image)
                         <img src="{{ Auth::guard()->user()->thumbnail }}" class="img-circle" alt="User Image">
                     @else
                         <img src="{{asset('assets/img/avatar4.png')}}" class="img-circle" alt="User Image">
@@ -76,15 +76,15 @@
                 <li class="user-footer w-100 px-3 py-2">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <x-ad-nav-link href="{{route('admin.profile')}}" class="btn btn-default btn-flat">
+                            <x-ad-nav-link href="{{route('profile.edit')}}" class="btn btn-default btn-flat">
                                 Profile
                             </x-ad-nav-link>
                         </div>
                         <div>
                             <!-- Authentication -->
-                            <form method="POST" action="{{ route('admin.logout') }}">
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <a href="route('admin.logout')" class="btn btn-default btn-flat"
+                                <a href="route('logout')" class="btn btn-default btn-flat"
                                     onclick="event.preventDefault();
                                             this.closest('form').submit();">
                                     {{ __('Log Out') }}
