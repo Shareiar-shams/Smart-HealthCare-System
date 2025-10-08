@@ -38,22 +38,8 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 @include('layouts.administration.partials_.menus.dashboard')
-                @include('layouts.administration.partials_.menus.categories.manage')
-                @include('layouts.administration.partials_.menus.product-type.manage')
-                @include('layouts.administration.partials_.menus.product.manage')
-                @include('layouts.administration.partials_.menus.orders.manage')
-                @include('layouts.administration.partials_.menus.digital-product.manage')
-                @include('layouts.administration.partials_.menus.mlm-user.manage')
-                @include('layouts.administration.partials_.menus.transactions')
-                @include('layouts.administration.partials_.menus.ecommerce.manage')
-                @include('layouts.administration.partials_.menus.tickets.manage')
-                @include('layouts.administration.partials_.menus.site.manage')
-                @include('layouts.administration.partials_.menus.faqs.manage')
-                @include('layouts.administration.partials_.menus.pages')
-                @include('layouts.administration.partials_.menus.social-icon')
-                @include('layouts.administration.partials_.menus.customers-list')
-                @include('layouts.administration.partials_.menus.subscribers-list')
-                @include('layouts.administration.partials_.menus.email-lists')
+                
+                
                 @include('layouts.administration.partials_.menus.system-user.manage')
                 @include('layouts.administration.partials_.menus.cache-clear')
             </ul>
