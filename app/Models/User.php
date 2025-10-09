@@ -58,4 +58,24 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Check if the user has all specified permissions.
+     *
+     * Iterates over an array of permissions and verifies if the user has all of them.
+     *
+     * @param array $permissions List of permission names to check.
+     * @return bool True if the user has all the specified permissions; otherwise, false.
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            // If any permission check fails, return false
+            if (!$this->can($permission)) {
+                return false;
+            }
+        }
+
+        // Return true if all permissions are granted
+        return true;
+    }
 }

@@ -39,7 +39,7 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 @include('layouts.administration.partials_.menus.dashboard')
                 
-                
+                <li class="nav-header">Settings</li>
                 @include('layouts.administration.partials_.menus.system-user.manage')
                 @include('layouts.administration.partials_.menus.cache-clear')
             </ul>

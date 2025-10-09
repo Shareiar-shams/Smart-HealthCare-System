@@ -56,6 +56,8 @@
     </div>
     <!-- ./wrapper -->
     @include('layouts.administration.partials_.admin-js')
+
+    @include('layouts.administration.partials_.confirm-delete')
     
 </body>
 </html>
