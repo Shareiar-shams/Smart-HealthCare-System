@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Administration\Settings\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class RoleUpdateRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class RoleUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,27 @@ class RoleUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $roleId = $this->route('role')->id;
         return [
-            //
+            'name' => [
+                'sometimes',
+                'string',
+                'max:255',
+                Rule::unique('roles')->ignore($roleId)
+            ],
+            'permissions' => ['required', 'array', 'min:1'],
+            'permissions.*' => ['required', 'integer', 'exists:permissions,id'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.unique' => 'A role with this name already exists.',
+            'name.max' => 'Role name cannot exceed 255 characters.',
+            'permissions.required' => 'At least one permission must be selected.',
+            'permissions.min' => 'At least one permission must be selected.',
+            'permissions.*.exists' => 'One or more selected permissions are invalid.',
         ];
     }
 }

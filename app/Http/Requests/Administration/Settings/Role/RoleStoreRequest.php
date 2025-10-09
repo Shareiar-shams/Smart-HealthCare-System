@@ -11,7 +11,7 @@ class RoleStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,21 @@ class RoleStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
+            'permissions' => ['required', 'array', 'min:1'],
+            'permissions.*' => ['required', 'integer', 'exists:permissions,id'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Role name is required.',
+            'name.unique' => 'A role with this name already exists.',
+            'name.max' => 'Role name cannot exceed 255 characters.',
+            'permissions.required' => 'At least one permission must be selected.',
+            'permissions.min' => 'At least one permission must be selected.',
+            'permissions.*.exists' => 'One or more selected permissions are invalid.',
         ];
     }
 }

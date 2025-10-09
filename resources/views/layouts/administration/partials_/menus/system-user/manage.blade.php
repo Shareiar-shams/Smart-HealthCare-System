@@ -1,5 +1,8 @@
 @php
-    $isActive = Route::is('administration.settings.rolepermission.permission.index') || Route::is('administration.settings.rolepermssion.role.index' || Route::is('administration.settings.user.index'));
+$isActive = 
+    Route::is('administration.settings.rolepermission.permission.index') || 
+    Route::is('administration.settings.rolepermission.role.index') || 
+    Route::is('administration.settings.user.index');
 @endphp
 <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
     <a href="#" class="nav-link">
