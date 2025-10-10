@@ -15,3 +15,7 @@ Route::prefix('/appointment')->controller(AppointmentController::class)
         Route::put('/{id}/update', 'update')->name('update')->can('Appointment Update');
         Route::delete('/{id}/delete', 'destroy')->name('destroy')->can('Appointment Delete');
     });
+Route::prefix('/api')->controller(AppointmentController::class)
+    ->group(function () {
+        Route::get('/doctor/{doctor}/time-slots', 'getTimeSlots')->name('getTimeSlots')->can('Appointment Create');
+    });
