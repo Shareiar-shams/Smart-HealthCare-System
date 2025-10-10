@@ -20,9 +20,9 @@
 
 <!-- Page specific script -->
 <!-- Toastr -->
-<script src="{{asset('admin/assets/plugins/toastr/toastr.min.js')}}"></script>
+<script src="{{asset('assets/plugins/toastr/toastr.min.js')}}"></script>
 <!-- SweetAlert2 -->
-<script src="{{asset('admin/assets/plugins/sweetalert2/sweetalert2.min.js')}}"></script>
+<script src="{{asset('assets/plugins/sweetalert2/sweetalert2.min.js')}}"></script>
 
 <script>
     var preloader = document.getElementById("loader");
