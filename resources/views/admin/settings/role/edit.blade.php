@@ -27,7 +27,7 @@
                     <div class="card-header header-elements">
                         <h5 class="mb-0">Update Role <b class="text-primary">({{ $role->name }})</b></h5>
 
-                        <div class="card-header-elements ms-auto">
+                        <div class="card-header-elements  float-right">
                             <a href="{{ route('administration.settings.rolepermission.role.index') }}" class="btn btn-sm btn-primary">
                                 <span class="tf-icon fa fa-arrow-left ti-xs me-1"></span>
                                 Back

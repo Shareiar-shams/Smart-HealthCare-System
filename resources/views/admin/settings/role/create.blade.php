@@ -27,9 +27,9 @@
                     <div class="card-header header-elements">
                         <h5 class="mb-0">Create New Role</h5>
 
-                        <div class="card-header-elements ms-auto">
+                        <div class="card-header-elements float-right">
                             <a href="{{ route('administration.settings.rolepermission.role.index') }}" class="btn btn-sm btn-primary">
-                                <span class="tf-icon ti ti-arrow-left ti-xs me-1"></span>
+                                <span class="tf-icon fa fa-arrow-left ti-xs me-1"></span>
                                 All Roles
                             </a>
                         </div>
@@ -128,8 +128,8 @@
                                                                         data-module-id="{{ $module->id }}"
                                                                         @if($permissionType === 'Everything') data-permission-id="{{ $permission->id }}" @endif>
                                                                         <span class="switch-toggle-slider">
-                                                                            <span class="switch-on"><i class="ti ti-check"></i></span>
-                                                                            <span class="switch-off"><i class="ti ti-x"></i></span>
+                                                                            <span class="switch-on"><i class="fa fa-check"></i></span>
+                                                                            <span class="switch-off"><i class="fa fa-x"></i></span>
                                                                         </span>
                                                                     </label>
                                                                 @else
@@ -152,11 +152,11 @@
                                     <div class="d-flex justify-content-between">
                                         <a href="{{ route('administration.settings.rolepermission.role.index') }}"
                                         class="btn btn-secondary">
-                                            <span class="tf-icon ti ti-x ti-xs me-1"></span>
+                                            <span class="tf-icon fa fa-x ti-xs me-1"></span>
                                             Cancel
                                         </a>
                                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                                            <span class="tf-icon ti ti-check ti-xs me-1"></span>
+                                            <span class="tf-icon fa fa-check ti-xs me-1"></span>
                                             Create Role
                                         </button>
                                     </div>
