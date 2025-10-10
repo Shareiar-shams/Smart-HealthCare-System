@@ -53,6 +53,50 @@
         font-size: 2rem;
         margin-bottom: 0.5rem;
     }
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    .bg-label-primary {
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+        color: var(--bs-primary);
+    }
+    .bg-label-success {
+        background-color: rgba(var(--bs-success-rgb), 0.1);
+        color: var(--bs-success);
+    }
+    .bg-label-danger {
+        background-color: rgba(var(--bs-danger-rgb), 0.1);
+        color: var(--bs-danger);
+    }
+    .bg-label-info {
+        background-color: rgba(var(--bs-info-rgb), 0.1);
+        color: var(--bs-info);
+    }
+    .card-header.bg-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+    }
+    .card-header.bg-info {
+        background: linear-gradient(135deg, #36b9cc 0%, #258391 100%) !important;
+    }
+    .form-label {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    .fw-semibold {
+        font-size: 1rem;
+    }
+    .card.bg-light {
+        background-color: #f8f9fa !important;
+        border: 1px solid #e9ecef;
+    }
 </style>
 @endsection
 
@@ -214,62 +258,149 @@
                 <!-- Profile Information Card -->
                 @if($user->profile)
                     <div class="card mb-4">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
                                 <i class="fa fa-user-circle me-2"></i>Profile Details
                             </h5>
+                            <span class="badge bg-info">{{ ucfirst($user->role->name ?? 'User') }} Profile</span>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                @if($user->profile->phone)
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label text-muted">Phone Number</label>
-                                        <p class="fw-semibold">{{ $user->profile->phone }}</p>
-                                    </div>
-                                @endif
-                                @if($user->profile->address)
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label text-muted">Address</label>
-                                        <p class="fw-semibold">{{ $user->profile->address }}</p>
-                                    </div>
-                                @endif
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Phone Number</label>
+                                    <p class="fw-semibold">{{ $user->profile->phone ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Address</label>
+                                    <p class="fw-semibold">{{ $user->profile->address ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">City</label>
+                                    <p class="fw-semibold">{{ $user->profile->city ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">State</label>
+                                    <p class="fw-semibold">{{ $user->profile->state ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Postal Code</label>
+                                    <p class="fw-semibold">{{ $user->profile->postal_code ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Gender</label>
+                                    <p class="fw-semibold">
+                                        <span class="badge bg-label-{{ $user->profile->gender == 'male' ? 'primary' : ($user->profile->gender == 'female' ? 'danger' : 'secondary') }}">
+                                            {{ ucfirst($user->profile->gender ?? 'Not Specified') }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Blood Group</label>
+                                    <p class="fw-semibold">
+                                        <span class="badge bg-label-danger">
+                                            {{ $user->profile->blood_group ?? 'Not Specified' }}
+                                        </span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 @endif
 
-                <!-- Related Information -->
-                <div class="row">
-                    @if($user->doctor)
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">
-                                        <i class="fa fa-stethoscope me-2"></i>Doctor Information
-                                    </h5>
+                <!-- Doctor Information -->
+                @if($user->doctor)
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-stethoscope me-2"></i>Professional Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Specialty</label>
+                                    <p class="fw-semibold">{{ $user->doctor->specialty ?? 'N/A' }}</p>
                                 </div>
-                                <div class="card-body">
-                                    <p class="text-muted">This user is associated with a doctor profile.</p>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Qualification</label>
+                                    <p class="fw-semibold">{{ $user->doctor->qualification ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Experience</label>
+                                    <p class="fw-semibold">{{ $user->doctor->experience_years ?? '0' }} Years</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">License Number</label>
+                                    <p class="fw-semibold">{{ $user->doctor->license_number ?? 'N/A' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Consultation Fee</label>
+                                    <p class="fw-semibold">
+                                        <span class="badge bg-success">
+                                            ${{ number_format($user->doctor->consultation_fee ?? 0, 2) }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label text-muted">Professional Bio</label>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            {{ $user->doctor->bio ?? 'No bio available.' }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @if($user->pharmacy)
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    <h5 class="card-title mb-0">
-                                        <i class="fa fa-building-hospital me-2"></i>Pharmacy Information
-                                    </h5>
+                <!-- Pharmacy Information -->
+                @if($user->pharmacy)
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fa fa-building-hospital me-2"></i>Pharmacy Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Pharmacy Name</label>
+                                    <p class="fw-semibold">{{ $user->pharmacy->pharmacy_name ?? 'N/A' }}</p>
                                 </div>
-                                <div class="card-body">
-                                    <p class="text-muted">This user is associated with a pharmacy profile.</p>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">License Number</label>
+                                    <p class="fw-semibold">{{ $user->pharmacy->license_number ?? 'N/A' }}</p>
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted">Services</label>
+                                    <div>
+                                        @if($user->pharmacy->delivery_available)
+                                            <span class="badge bg-success me-2">
+                                                <i class="fa fa-truck me-1"></i> Delivery Available
+                                            </span>
+                                        @endif
+                                        @if($user->pharmacy->emergency_service)
+                                            <span class="badge bg-danger">
+                                                <i class="fa fa-ambulance me-1"></i> Emergency Service
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label text-muted">Description</label>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            {{ $user->pharmacy->description ?? 'No description available.' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Operating Hours or Additional Services can be added here -->
                             </div>
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
