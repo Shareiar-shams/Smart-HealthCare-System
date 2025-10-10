@@ -11,7 +11,7 @@ $isActive =
         </p>
     </a>
     <ul class="nav nav-treeview">
-        @if(auth()->user()->can('Administration Update') && auth()->user()->hasRole('Patient'))
+        @if(auth()->user()->can('Appointment Update') && (auth()->user()->hasRole('Patient') || auth()->user()->hasRole('Super Admin') ))
             <li class="nav-item">
                 <a href="{{ route('administration.appointment.myAppointments') }}" 
                 class="nav-link {{ Route::is('administration.appointment.index') ? 'active' : '' }}">
