@@ -79,6 +79,71 @@
 
 @section('main_content')
     <div class="container-fluid">
+        <!-- Filter Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form action="{{ route('administration.settings.user.index') }}" method="GET" class="row g-3">
+                    <!-- Search -->
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" name="search" placeholder="Search by name or email" 
+                                value="{{ request('search') }}">
+                        </div>
+                    </div>
+
+                    <!-- Role Filter -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="role">
+                            <option value="">All Roles</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="status">
+                            <option value="">All Status</option>
+                            @foreach($statuses as $status)
+                                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                                    {{ $status }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" name="date_from" placeholder="From Date" 
+                            value="{{ request('date_from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" class="form-control" name="date_to" placeholder="To Date" 
+                            value="{{ request('date_to') }}">
+                    </div>
+
+                    <!-- Sort -->
+                    <input type="hidden" name="sort_field" value="{{ request('sort_field', 'created_at') }}">
+                    <input type="hidden" name="sort_direction" value="{{ request('sort_direction', 'desc') }}">
+
+                    <!-- Filter Actions -->
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Apply Filters
+                        </button>
+                        <a href="{{ route('administration.settings.user.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i> Clear Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Section -->
         <div class="row g-4">
             @foreach ($users as $user)
                 <div class="col-xl-4 col-lg-6 col-md-6">
@@ -181,4 +246,44 @@
 @endsection
 
 @section('admin_page_js')
+<script>
+    $(document).ready(function() {
+        // Handle sort column clicks
+        $('.sort-column').click(function(e) {
+            e.preventDefault();
+            const field = $(this).data('field');
+            const currentDirection = $('input[name="sort_direction"]').val();
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+            
+            $('input[name="sort_field"]').val(field);
+            $('input[name="sort_direction"]').val(newDirection);
+            $('form').submit();
+        });
+
+        // Dynamic filtering
+        $('select[name="role"], select[name="status"]').change(function() {
+            $(this).closest('form').submit();
+        });
+
+        // Date range validation
+        $('input[name="date_to"]').change(function() {
+            const dateFrom = $('input[name="date_from"]').val();
+            const dateTo = $(this).val();
+            
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                alert('End date must be after start date');
+                $(this).val('');
+            }
+        });
+
+        // Search debouncing
+        let searchTimeout;
+        $('input[name="search"]').on('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                $(this).closest('form').submit();
+            }, 500);
+        });
+    });
+</script>
 @endsection

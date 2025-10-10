@@ -19,12 +19,27 @@ class UserController extends Controller
     }
 
     /**
-     * Display a listing of users
+     * Display a listing of users with filters
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->userService->getAllUsers();
-        return view('admin.settings.user.index', compact('users'));
+        $filters = [
+            'role' => $request->input('role'),
+            'status' => $request->input('status'),
+            'search' => $request->input('search'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'sort_field' => $request->input('sort_field', 'created_at'),
+            'sort_direction' => $request->input('sort_direction', 'desc'),
+            'paginate' => true,
+            'per_page' => 12
+        ];
+
+        $users = $this->userService->getFilteredUsers($filters);
+        $roles = $this->userService->getAllRoles();
+        $statuses = ['Active', 'Inactive'];
+
+        return view('admin.settings.user.index', compact('users', 'roles', 'statuses', 'filters'));
     }
 
     /**

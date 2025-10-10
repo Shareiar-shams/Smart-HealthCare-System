@@ -11,14 +11,57 @@ use Spatie\Permission\Models\Role;
 class UserService
 {
     /**
+     * Get filtered users with their relationships
+     */
+    public function getFilteredUsers(array $filters = [])
+    {
+        $query = User::with(['role', 'roles', 'profile', 'doctor', 'pharmacy'])
+            ->withCount('roles');
+
+        // Filter by role
+        if (!empty($filters['role'])) {
+            $query->whereHas('roles', function ($q) use ($filters) {
+                $q->where('name', $filters['role']);
+            });
+        }
+
+        // Filter by status
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        // Filter by search term (name or email)
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('name', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('email', 'like', '%' . $filters['search'] . '%');
+            });
+        }
+
+        // Filter by date range
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
+        // Sort
+        $sortField = $filters['sort_field'] ?? 'created_at';
+        $sortDirection = $filters['sort_direction'] ?? 'desc';
+        $query->orderBy($sortField, $sortDirection);
+
+        return $filters['paginate'] ?? false
+            ? $query->paginate($filters['per_page'] ?? 15)
+            : $query->get();
+    }
+
+    /**
      * Get all users with their relationships
      */
     public function getAllUsers()
     {
-        return User::with(['role', 'roles', 'profile'])
-            ->withCount('roles')
-            ->latest()
-            ->get();
+        return $this->getFilteredUsers();
     }
 
     /**
@@ -26,10 +69,7 @@ class UserService
      */
     public function getPaginatedUsers($perPage = 15)
     {
-        return User::with(['role', 'roles', 'profile'])
-            ->withCount('roles')
-            ->latest()
-            ->paginate($perPage);
+        return $this->getFilteredUsers(['paginate' => true, 'per_page' => $perPage]);
     }
 
     /**
