@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 ===============================================*/
 Route::prefix('user')->name('user.')->group(function () {
     Route::controller(UserController::class)->group(function () {
-        Route::get('/all', 'index')->name('index');
+        Route::get('/all', 'index')->name('index')->can('User Read');
 
         Route::get('/create', 'create')->name('create');
         Route::post('/store', 'store')->name('store')->can('User Create');
