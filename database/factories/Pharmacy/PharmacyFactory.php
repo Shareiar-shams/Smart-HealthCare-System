@@ -14,7 +14,7 @@ class PharmacyFactory extends Factory
         return [
             'pharmacy_name' => fake()->company() . ' Pharmacy',
             'license_number' => fake()->unique()->numerify('PHAR-####-###'),
-            'phone' => fake()->phoneNumber(),
+            'contact_no' => fake()->phoneNumber(),
             'address' => fake()->address(),
             'city' => fake()->city(),
             'state' => fake()->state(),

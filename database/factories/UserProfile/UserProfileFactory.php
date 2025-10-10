@@ -13,7 +13,7 @@ class UserProfileFactory extends Factory
     public function definition(): array
     {
         return [
-            'phone' => fake()->phoneNumber(),
+            'contact_no' => fake()->phoneNumber(),
             'address' => fake()->address(),
             'city' => fake()->city(),
             'state' => fake()->state(),
