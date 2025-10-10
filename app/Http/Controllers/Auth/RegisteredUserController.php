@@ -69,6 +69,7 @@ class RegisteredUserController extends Controller
 
         switch ($roleName) {
             case 'user':
+            case 'patient':
                 UserProfile::create([
                     'user_id' => $user->id,
                     'contact_no' => $request->contact_no,
@@ -98,6 +99,14 @@ class RegisteredUserController extends Controller
                     'opening_hours' => $request->opening_hours,
                 ]);
                 break;
+            default:
+                UserProfile::create([
+                    'user_id' => $user->id,
+                    'contact_no' => $request->contact_no,
+                    'address' => $request->address,
+                ]);
+                break;
+            
         }
 
         event(new Registered($user));
