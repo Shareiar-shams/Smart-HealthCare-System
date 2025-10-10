@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('pharmacy_name');
+            $table->string('owner_name')->nullable();
             $table->string('license_number')->unique();
-            $table->string('phone');
+            $table->string('contact_no');
             $table->text('address');
             $table->string('city');
             $table->string('state');

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('qualification');
             $table->integer('experience_years');
             $table->string('license_number')->unique();
+            $table->text('chamber_address')->nullable();
             $table->decimal('consultation_fee', 10, 2);
             $table->json('available_days');
             $table->json('available_time');
