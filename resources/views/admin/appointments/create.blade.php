@@ -59,7 +59,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Select Doctor</h3>
-                        {{-- <div class="card-tools">
+                        <div class="card-tools">
                             <div class="input-group">
                                 <input type="text" class="form-control form-control-sm" id="doctorSearch" 
                                     placeholder="Search doctor...">
@@ -70,7 +70,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div> --}}
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="row" id="doctorsList">
@@ -208,46 +208,73 @@
     }
 
     function validateForm() {
-    const isValid = selectedDoctor && 
-                   $('#appointment_date').val() && 
-                   $('#selected_time_slot').val() &&
-                   $('textarea[name="reason"]').val();
-    
-    $('#submitBtn').prop('disabled', !isValid);
-}
+        const doctorId = $('#selected_doctor_id').val();
+        const date = $('#appointment_date').val();
+        const timeSlot = $('#selected_time_slot').val();
+        const reason = $('textarea[name="reason"]').val();
 
-$(document).ready(function() {
-    // Doctor search
-    $('#doctorSearch').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        $('.doctor-item').each(function() {
-            const doctorName = $(this).data('name').toLowerCase();
-            $(this).toggle(doctorName.includes(searchTerm));
+        console.log('Validation Check:', {
+            doctorId: doctorId,
+            date: date,
+            timeSlot: timeSlot,
+            reason: reason
         });
-    });
 
-    // Specialty filter
-    $('#specialtyFilter').change(function() {
-        const specialty = $(this).val();
-        $('.doctor-item').each(function() {
-            if (!specialty || $(this).data('specialty') === specialty) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
+        const isValid = doctorId && date && timeSlot && reason && reason.trim() !== '';
+        
+        $('#submitBtn').prop('disabled', !isValid);
+        return isValid;
+    }
+
+    $(document).ready(function() {
+        // Initial form validation
+        validateForm();
+
+        // Doctor search
+        $('#doctorSearch').on('input', function() {
+            const searchTerm = $(this).val().toLowerCase();
+            $('.doctor-item').each(function() {
+                const doctorName = $(this).data('name').toLowerCase();
+                $(this).toggle(doctorName.includes(searchTerm));
+            });
         });
-    });
 
-    // Form validation
-    $('textarea[name="reason"]').on('input', validateForm);
+        // Specialty filter
+        $('#specialtyFilter').change(function() {
+            const specialty = $(this).val();
+            $('.doctor-item').each(function() {
+                if (!specialty || $(this).data('specialty') === specialty) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
 
-    // Form submission
-    $('#appointmentForm').on('submit', function(e) {
-        if (!validateForm()) {
+        // Form validation
+        $('textarea[name="reason"]').on('input', validateForm);
+
+        // Form submission
+        $('#appointmentForm').on('submit', function(e) {
             e.preventDefault();
-            alert('Please fill in all required fields');
-        }
+            
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please fill in all required fields:' +
+                          (!$('#selected_doctor_id').val() ? '\n- Select a doctor' : '') +
+                          (!$('#appointment_date').val() ? '\n- Select a date' : '') +
+                          (!$('#selected_time_slot').val() ? '\n- Select a time slot' : '') +
+                          (!$('textarea[name="reason"]').val() ? '\n- Enter reason for visit' : ''),
+                    confirmButtonText: 'OK'
+                });
+                return false;
+            }
+
+            // If validation passes, submit the form
+            this.submit();
+        });
     });
-});
 </script>
 @endsection
