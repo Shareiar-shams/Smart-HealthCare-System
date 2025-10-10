@@ -64,6 +64,11 @@ class RolePolicy
      */
     public function update(User $user, Role $role): Response
     {
+        // First check for the general role update permission
+        if (!$user->hasPermissionTo('Role Update') && !$user->getAllPermissions()->contains('name', 'Role Update')) {
+            return Response::deny('You do not have permission to update roles.');
+        }
+
         // System roles have special restrictions
         if ($this->isSystemRole($role)) {
             if ($role->name === 'Developer') {
