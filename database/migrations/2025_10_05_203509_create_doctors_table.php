@@ -14,13 +14,14 @@ return new class extends Migration
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('registration_no')->nullable();
-            $table->string('specialization')->nullable();
-            $table->string('hospital_name')->nullable();
-            $table->string('chamber_address')->nullable();
-            $table->string('available_time')->nullable();
-            $table->string('available_days')->nullable();
-            $table->boolean('status')->default(true);
+            $table->string('specialty');
+            $table->string('qualification');
+            $table->integer('experience_years');
+            $table->string('license_number')->unique();
+            $table->decimal('consultation_fee', 10, 2);
+            $table->json('available_days');
+            $table->json('available_time');
+            $table->text('bio')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

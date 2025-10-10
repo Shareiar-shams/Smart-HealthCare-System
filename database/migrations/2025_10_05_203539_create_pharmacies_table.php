@@ -14,14 +14,17 @@ return new class extends Migration
         Schema::create('pharmacies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('pharmacy_name')->nullable();
-            $table->string('owner_name')->nullable();
-            $table->string('license_number')->nullable();
-            $table->string('location')->nullable();
-            $table->string('contact_no')->nullable();
-            $table->string('opening_hours')->nullable();
-            $table->string('status')->default('active');
-            $table->boolean('is_verified')->default(false);
+            $table->string('pharmacy_name');
+            $table->string('license_number')->unique();
+            $table->string('phone');
+            $table->text('address');
+            $table->string('city');
+            $table->string('state');
+            $table->string('postal_code');
+            $table->json('opening_hours');
+            $table->boolean('delivery_available')->default(false);
+            $table->boolean('emergency_service')->default(false);
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
