@@ -47,9 +47,9 @@
                     <div class="card-header header-elements">
                         <h5 class="mb-0">Edit User: {{ $user->name }}</h5>
 
-                        <div class="card-header-elements ms-auto">
+                        <div class="card-header-elements float-right">
                             <a href="{{ route('administration.settings.user.index') }}" class="btn btn-sm btn-primary">
-                                <span class="tf-icon ti ti-arrow-left ti-xs me-1"></span>
+                                <span class="tf-icon fa fa-arrow-left ti-xs me-1"></span>
                                 All Users
                             </a>
                         </div>
@@ -62,7 +62,7 @@
                             <!-- Basic Information Section -->
                             <div class="form-section">
                                 <h6 class="form-section-title">
-                                    <i class="ti ti-user me-2"></i>Basic Information
+                                    <i class="fa fa-user me-2"></i>Basic Information
                                 </h6>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -87,7 +87,7 @@
                             <!-- Security Section -->
                             <div class="form-section">
                                 <h6 class="form-section-title">
-                                    <i class="ti ti-lock me-2"></i>Security (Leave blank to keep current password)
+                                    <i class="fa fa-lock me-2"></i>Security (Leave blank to keep current password)
                                 </h6>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -97,7 +97,7 @@
                                                 class="form-control @error('password') is-invalid @enderror" 
                                                 placeholder="Enter new password" />
                                             <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                                <i class="ti ti-eye" id="togglePasswordIcon"></i>
+                                                <i class="fa fa-eye" id="togglePasswordIcon"></i>
                                             </button>
                                         </div>
                                         @error('password')
@@ -112,7 +112,7 @@
                                                 class="form-control @error('password_confirmation') is-invalid @enderror" 
                                                 placeholder="Confirm new password" />
                                             <button class="btn btn-outline-secondary" type="button" id="togglePasswordConfirm">
-                                                <i class="ti ti-eye" id="togglePasswordConfirmIcon"></i>
+                                                <i class="fa fa-eye" id="togglePasswordConfirmIcon"></i>
                                             </button>
                                         </div>
                                         @error('password_confirmation')
@@ -125,7 +125,7 @@
                             <!-- Role Assignment Section -->
                             <div class="form-section">
                                 <h6 class="form-section-title">
-                                    <i class="ti ti-shield-check me-2"></i>Role Assignment
+                                    <i class="fa fa-shield-check me-2"></i>Role Assignment
                                 </h6>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -156,7 +156,7 @@
                             <!-- User Information Display -->
                             <div class="form-section">
                                 <h6 class="form-section-title">
-                                    <i class="ti ti-info-circle me-2"></i>Account Information
+                                    <i class="fa fa-info-circle me-2"></i>Account Information
                                 </h6>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -184,11 +184,11 @@
                                     <div class="d-flex justify-content-between">
                                         <a href="{{ route('administration.settings.user.index') }}"
                                         class="btn btn-secondary">
-                                            <span class="tf-icon ti ti-x ti-xs me-1"></span>
+                                            <span class="tf-icon fa fa-x ti-xs me-1"></span>
                                             Cancel
                                         </a>
                                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                                            <span class="tf-icon ti ti-check ti-xs me-1"></span>
+                                            <span class="tf-icon fa fa-check ti-xs me-1"></span>
                                             Update User
                                         </button>
                                     </div>

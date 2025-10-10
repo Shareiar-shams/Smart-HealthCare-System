@@ -60,7 +60,7 @@
                             <div class="row mb-0">
                                 <div class="col-12">
                                     <div class="alert alert-primary d-flex align-items-center">
-                                        <span class="tf-icon ti ti-info-circle me-2"></span>
+                                        <span class="tf-icon fa fa-info-circle me-2"></span>
                                         <div class="flex-grow-1">
                                             <strong>Permission Summary:</strong>
                                             <span id="permissionSummary">No permissions selected</span>
@@ -98,7 +98,7 @@
                                                         <th>
                                                             <div class="d-flex justify-content-between align-items-center text-capitalize">
                                                                 <span>
-                                                                    <span class="tf-icon ti ti-lock me-2"></span>
+                                                                    <span class="tf-icon fa fa-lock me-2"></span>
                                                                     {{ $module->name }}
                                                                 </span>
                                                                 <span class="badge bg-label-primary ms-2">

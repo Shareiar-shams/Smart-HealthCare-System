@@ -93,7 +93,7 @@
                                     <p class="text-muted mb-2">{{ $user->email }}</p>
                                     @if($user->role)
                                         <span class="role-badge">
-                                            <i class="ti ti-shield-check me-1"></i>
+                                            <i class="fa fa-shield-check me-1"></i>
                                             {{ $user->role->name }}
                                         </span>
                                     @else
@@ -138,14 +138,16 @@
                             </div>
 
                             @can('User Delete')
-                                <div class="mt-3">
-                                    <a href="{{ route('administration.settings.user.destroy', ['user' => $user]) }}" 
-                                        class="btn btn-sm btn-outline-danger w-100"
-                                        onclick="return confirm('Are you sure you want to delete this user?')">
-                                        <i class="ti ti-trash me-1"></i>
-                                        Delete User
-                                    </a>
-                                </div>
+                                @if($user->role->name !== 'Super Admin' && $user->role->name !== 'Admin' && $user->role->name !== 'Developer')
+                                    <div class="mt-3">
+                                        <a href="{{ route('administration.settings.user.destroy', ['user' => $user]) }}" 
+                                            class="btn btn-sm btn-outline-danger w-100"
+                                            onclick="return confirm('Are you sure you want to delete this user?')">
+                                            <i class="fa fa-trash me-1"></i>
+                                            Delete User
+                                        </a>
+                                    </div>
+                                @endif
                             @endcan
                         </div>
                     </div>
@@ -156,11 +158,11 @@
                 <div class="col-xl-4 col-lg-6 col-md-6">
                     <div class="card user-card add-user-card">
                         <div class="card-body p-4 text-center">
-                            <i class="ti ti-user-plus mb-3" style="font-size: 3rem; color: var(--bs-primary);"></i>
+                            <i class="fa fa-user-plus mb-3" style="font-size: 3rem; color: var(--bs-primary);"></i>
                             <div>
                                 <a href="{{ route('administration.settings.user.create') }}" 
                                     class="btn btn-primary btn-lg mb-3">
-                                    <i class="ti ti-plus me-2"></i>
+                                    <i class="fa fa-plus me-2"></i>
                                     Add New User
                                 </a>
                                 <p class="text-muted mb-0">Create a new user account</p>

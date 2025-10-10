@@ -29,7 +29,7 @@
 
                         <div class="card-header-elements ms-auto">
                             <a href="{{ route('administration.settings.rolepermission.role.index') }}" class="btn btn-sm btn-primary">
-                                <span class="tf-icon ti ti-arrow-left ti-xs me-1"></span>
+                                <span class="tf-icon fa fa-arrow-left ti-xs me-1"></span>
                                 Back
                             </a>
                         </div>

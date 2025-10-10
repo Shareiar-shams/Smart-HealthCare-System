@@ -35,6 +35,12 @@
                                     <i class="fa fa-edit me-1"></i> Edit Role
                                 </a>
                             @endif
+                            <div class="card-header-elements ms-auto">
+                                <a href="{{ route('administration.settings.rolepermission.role.index') }}" class="btn btn-sm btn-primary">
+                                    <span class="tf-icon fa fa-arrow-left ti-xs me-1"></span>
+                                    Back
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -62,6 +62,14 @@
             <div class="col-12">
                 <!-- Profile Header Card -->
                 <div class="card mb-4">
+                    <div class="card-header header-elements">
+                        <div class="card-header-elements float-right">
+                            <a href="{{ route('administration.settings.user.index') }}" class="btn btn-sm btn-primary">
+                                <span class="tf-icon fa fa-arrow-left ti-xs me-1"></span>
+                                All Users
+                            </a>
+                        </div>
+                    </div>
                     <div class="profile-header">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
@@ -73,7 +81,7 @@
                                     <p class="mb-2">{{ $user->email }}</p>
                                     @if($user->role)
                                         <span class="badge bg-white text-primary">
-                                            <i class="ti ti-shield-check me-1"></i>
+                                            <i class="fa fa-shield-check me-1"></i>
                                             {{ $user->role->name }}
                                         </span>
                                     @endif
@@ -81,7 +89,7 @@
                             </div>
                             @can('User Update')
                                 <a href="{{ route('administration.settings.user.edit', $user) }}" class="btn btn-light">
-                                    <i class="ti ti-edit me-1"></i> Edit Profile
+                                    <i class="fa fa-edit me-1"></i> Edit Profile
                                 </a>
                             @endcan
                         </div>
@@ -91,7 +99,7 @@
                             <div class="col-md-3">
                                 <div class="stat-card">
                                     <div class="stat-icon text-primary">
-                                        <i class="ti ti-shield-check"></i>
+                                        <i class="fa fa-shield-check"></i>
                                     </div>
                                     <h4 class="mb-0">{{ $statistics['role_count'] }}</h4>
                                     <small class="text-muted">Assigned Roles</small>
@@ -100,7 +108,7 @@
                             <div class="col-md-3">
                                 <div class="stat-card">
                                     <div class="stat-icon text-success">
-                                        <i class="ti ti-key"></i>
+                                        <i class="fa fa-key"></i>
                                     </div>
                                     <h4 class="mb-0">{{ $statistics['permission_count'] }}</h4>
                                     <small class="text-muted">Permissions</small>
@@ -109,7 +117,7 @@
                             <div class="col-md-3">
                                 <div class="stat-card">
                                     <div class="stat-icon text-info">
-                                        <i class="ti ti-calendar"></i>
+                                        <i class="fa fa-calendar"></i>
                                     </div>
                                     <h4 class="mb-0">{{ $statistics['created_at']->format('M d, Y') }}</h4>
                                     <small class="text-muted">Member Since</small>
@@ -118,7 +126,7 @@
                             <div class="col-md-3">
                                 <div class="stat-card">
                                     <div class="stat-icon {{ $statistics['status'] === 'Active' ? 'text-success' : 'text-danger' }}">
-                                        <i class="ti ti-circle-check"></i>
+                                        <i class="fa fa-circle-check"></i>
                                     </div>
                                     <h4 class="mb-0">{{ $statistics['status'] }}</h4>
                                     <small class="text-muted">Account Status</small>
@@ -132,7 +140,7 @@
                 <div class="card mb-4 info-card">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="ti ti-info-circle me-2"></i>User Information
+                            <i class="fa fa-info-circle me-2"></i>User Information
                         </h5>
                     </div>
                     <div class="card-body">
@@ -180,7 +188,7 @@
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title mb-0">
-                                <i class="ti ti-shield-check me-2"></i>Roles & Permissions
+                                <i class="fa fa-shield-check me-2"></i>Roles & Permissions
                             </h5>
                         </div>
                         <div class="card-body">
@@ -208,7 +216,7 @@
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title mb-0">
-                                <i class="ti ti-user-circle me-2"></i>Profile Details
+                                <i class="fa fa-user-circle me-2"></i>Profile Details
                             </h5>
                         </div>
                         <div class="card-body">
@@ -237,7 +245,7 @@
                             <div class="card mb-4">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
-                                        <i class="ti ti-stethoscope me-2"></i>Doctor Information
+                                        <i class="fa fa-stethoscope me-2"></i>Doctor Information
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -252,7 +260,7 @@
                             <div class="card mb-4">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0">
-                                        <i class="ti ti-building-hospital me-2"></i>Pharmacy Information
+                                        <i class="fa fa-building-hospital me-2"></i>Pharmacy Information
                                     </h5>
                                 </div>
                                 <div class="card-body">
