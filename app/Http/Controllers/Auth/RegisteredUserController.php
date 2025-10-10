@@ -39,6 +39,26 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string'],
+            // Common profile fields
+            'phone' => ['sometimes', 'string', 'max:20'],
+            'address' => ['sometimes', 'string'],
+            'gender' => ['sometimes', 'string', 'in:male,female,other'],
+            'blood_group' => ['sometimes', 'string'],
+            // Doctor specific fields
+            'specialty' => ['required_if:role,*--doctor', 'string'],
+            'qualification' => ['required_if:role,*--doctor', 'string'],
+            'experience_years' => ['required_if:role,*--doctor', 'integer', 'min:0'],
+            'license_number' => ['required_if:role,*--doctor', 'string', 'unique:doctors,license_number'],
+            'consultation_fee' => ['required_if:role,*--doctor', 'numeric', 'min:0'],
+            'bio' => ['sometimes', 'string'],
+            // Pharmacy specific fields
+            'pharmacy_name' => ['required_if:role,*--pharmacy', 'string'],
+            'city' => ['required_if:role,*--pharmacy', 'string'],
+            'state' => ['required_if:role,*--pharmacy', 'string'],
+            'postal_code' => ['required_if:role,*--pharmacy', 'string'],
+            'delivery_available' => ['sometimes', 'boolean'],
+            'emergency_service' => ['sometimes', 'boolean'],
+            'description' => ['sometimes', 'string'],
         ]);
 
         // 1. Get the combined value from the request
@@ -67,44 +87,59 @@ class RegisteredUserController extends Controller
         ]);
         $user->assignRole($roleName);
 
-        switch ($roleName) {
-            case 'user':
-            case 'patient':
-                UserProfile::create([
-                    'user_id' => $user->id,
-                    'contact_no' => $request->contact_no,
-                    'address' => $request->address,
-                ]);
-                break;
+        // Create basic profile for all users
+        $profileData = [
+            'user_id' => $user->id,
+            'contact_no' => $request->phone,
+            'address' => $request->address,
+            'gender' => $request->gender,
+            'blood_group' => $request->blood_group,
+            'city' => $request->city,
+            'state' => $request->state,
+            'postal_code' => $request->postal_code,
+        ];
 
+        switch ($roleName) {
             case 'doctor':
+                UserProfile::create($profileData);
                 Doctor::create([
                     'user_id' => $user->id,
-                    'registration_no' => $request->registration_no,
-                    'specialization' => $request->specialization,
-                    'hospital_name' => $request->hospital_name,
-                    'chamber_address' => $request->chamber_address,
-                    'available_time' => $request->available_time,
+                    'specialty' => $request->specialty,
+                    'qualification' => $request->qualification,
+                    'experience_years' => $request->experience_years,
+                    'license_number' => $request->license_number,
+                    'consultation_fee' => $request->consultation_fee,
+                    'bio' => $request->bio,
+                    'available_days' => json_encode(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']), // Default value
+                    'available_time' => json_encode(['morning' => '09:00-13:00', 'evening' => '17:00-21:00']), // Default value
                 ]);
                 break;
 
             case 'pharmacy':
+                UserProfile::create($profileData);
                 Pharmacy::create([
                     'user_id' => $user->id,
                     'pharmacy_name' => $request->pharmacy_name,
-                    'owner_name' => $request->owner_name,
                     'license_number' => $request->license_number,
-                    'location' => $request->location,
-                    'contact_no' => $request->contact_no,
-                    'opening_hours' => $request->opening_hours,
+                    'contact_no' => $request->phone,
+                    'address' => $request->address,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'postal_code' => $request->postal_code,
+                    'opening_hours' => json_encode([
+                        'weekdays' => '09:00-21:00',
+                        'weekends' => '10:00-18:00'
+                    ]),
+                    'delivery_available' => $request->boolean('delivery_available'),
+                    'emergency_service' => $request->boolean('emergency_service'),
+                    'description' => $request->description,
                 ]);
                 break;
+
+            case 'user':
+            case 'patient':
             default:
-                UserProfile::create([
-                    'user_id' => $user->id,
-                    'contact_no' => $request->contact_no,
-                    'address' => $request->address,
-                ]);
+                UserProfile::create($profileData);
                 break;
             
         }
