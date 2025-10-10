@@ -75,7 +75,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-        // $this->authorize('update', $role);
+        $this->authorize('update', $role);
         $modules = $this->roleService->getPermissionModules();
 
         return view('admin.settings.role.edit', compact('modules', 'role'));
@@ -86,7 +86,7 @@ class RoleController extends Controller
      */
     public function update(RoleUpdateRequest $request, Role $role)
     {
-        // $this->authorize('update', $role);
+        $this->authorize('update', $role);
         
         try {
             $originalPermissionCount = $role->permissions->count();
