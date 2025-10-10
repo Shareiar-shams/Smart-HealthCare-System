@@ -19,8 +19,8 @@ class AppointmentController extends Controller
     public function __construct(AppointmentService $appointmentService)
     {
         $this->appointmentService = $appointmentService;
-        $this->middleware('role:Patient')->only(['store', 'myAppointments']);
-        $this->middleware('role:Super Admin')->only(['index', 'store', 'show', 'myAppointments', 'destroy']);
+        $this->middleware('role:Super Admin|Patient')->only(['store', 'myAppointments']);
+$this->middleware('role:Super Admin')->only(['index', 'show', 'destroy']);
     }
 
     // List doctors (simple index)
@@ -170,7 +170,7 @@ class AppointmentController extends Controller
     // Show current user's appointments
     public function myAppointments()
     {
-        $appointments = Appointment::with('doctor')->where('user_id', Auth::id())->orderBy('date', 'desc')->paginate(12);
+        $appointments = Appointment::with('doctor')->where('patient_id', Auth::id())->orderBy('date', 'desc')->paginate(12);
         return view('admin.appointments.my', compact('appointments'));
     }
 }
