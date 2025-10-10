@@ -7,9 +7,10 @@
       @show
 <!-- Theme style -->
 <link rel="stylesheet" href="{{asset('assets/dist/css/adminlte.min.css')}}">
- <!-- Place your kit's code here -->
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
-
+<!-- SweetAlert2 -->
+<link rel="stylesheet" href="{{asset('admin/assets/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css')}}">
+<!-- Toastr -->
+<link rel="stylesheet" href="{{asset('admin/assets/plugins/toastr/toastr.min.css')}}">
 {{-- external page css --}}
 
 @section('admin_page_css')
