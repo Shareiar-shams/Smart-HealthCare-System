@@ -28,5 +28,5 @@ class UserProfile extends Model
 
     protected $casts = [];
 
-    protected $fillable = ['user_id', 'contact_no', 'address'];
+    protected $fillable = ['user_id', 'contact_no', 'address', 'city', 'state', 'country', 'postal_code', 'date_of_birth', 'gender', 'blood_group'];
 }

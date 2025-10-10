@@ -28,6 +28,6 @@ class Doctor extends Model
 
     protected $casts = [];
 
-    protected $fillable = ['user_id', 'registration_no', 'specialization',
-        'hospital_name', 'chamber_address', 'available_time', 'available_days', 'status'];
+    protected $fillable = ['user_id', 'specialty', 'qualification',
+        'experience_years', 'license_number', 'chamber_address', 'consultation_fee', 'available_days', 'available_time', 'bio'];
 }

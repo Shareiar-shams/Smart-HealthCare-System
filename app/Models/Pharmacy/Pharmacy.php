@@ -29,5 +29,5 @@ class Pharmacy extends Model
     protected $casts = [];
 
     protected $fillable = ['user_id', 'pharmacy_name', 'owner_name',
-        'license_number', 'location', 'contact_no', 'opening_hours', 'status', 'is_verified'];
+        'license_number', 'contact_no', 'address', 'city', 'state', 'postal_code', 'opening_hours', 'delivery_available', 'emergency_service', 'description'];
 }
