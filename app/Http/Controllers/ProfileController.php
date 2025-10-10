@@ -35,45 +35,46 @@ class ProfileController extends Controller
         }
 
         $user = $request->user();
-
         $user->save();
 
-        // Persist role specific related data
-        // User -> profile (contact_no, address)
-        if ($user->role === 'User') {
-            $user->profile()->updateOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'contact_no' => $request->input('phone'),
-                    'address' => $request->input('position'),
-                ]
-            );
-        }
+        // Update common profile fields for all users
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'contact_no' => $request->input('phone'),
+                'address' => $request->input('address'),
+                'city' => $request->input('city'),
+                'state' => $request->input('state'),
+                'postal_code' => $request->input('postal_code'),
+                'gender' => $request->input('gender'),
+                'blood_group' => $request->input('blood_group'),
+            ]
+        );
 
-        // Doctor -> doctor table (registration_no, specialization, hospital_name, chamber_address, available_time)
-        if ($user->role === 'Doctor') {
+        // Update role-specific related data
+        if ($user->role === 'doctor') {
             $user->doctor()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'registration_no' => $request->input('registration_no'),
-                    'specialization' => $request->input('specialization'),
-                    'hospital_name' => $request->input('hospital_name'),
-                    'chamber_address' => $request->input('chamber_address'),
-                    'available_time' => $request->input('available_time'),
+                    'specialty' => $request->input('specialty'),
+                    'qualification' => $request->input('qualification'),
+                    'experience_years' => $request->input('experience_years'),
+                    'license_number' => $request->input('license_number'),
+                    'consultation_fee' => $request->input('consultation_fee'),
+                    'bio' => $request->input('bio'),
                 ]
             );
         }
 
-        // Pharmacy -> pharmacy table (pharmacy_name, owner_name, license_number, location, contact_no)
-        if ($user->role === 'Pharmacy') {
+        if ($user->role === 'pharmacy') {
             $user->pharmacy()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'pharmacy_name' => $request->input('pharmacy_name'),
-                    'owner_name' => $request->input('owner_name'),
                     'license_number' => $request->input('license_number'),
-                    'location' => $request->input('location'),
-                    'contact_no' => $request->input('contact_no'),
+                    'delivery_available' => $request->boolean('delivery_available'),
+                    'emergency_service' => $request->boolean('emergency_service'),
+                    'description' => $request->input('description'),
                 ]
             );
         }
