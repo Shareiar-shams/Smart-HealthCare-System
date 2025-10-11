@@ -18,7 +18,7 @@
         <!-- /.register-logo -->
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <h4 class="h1"><b>Smart </b>HealthCare</h4>
+                <h4 class="h1"><b>{{config('app.name')}} </b>HealthCare</h4>
                 {{-- <img src="{{ asset(config('app.logo')) }}" alt="logo" height="50" class="mb-2"/> --}}
             </div>
             <div class="card-body">

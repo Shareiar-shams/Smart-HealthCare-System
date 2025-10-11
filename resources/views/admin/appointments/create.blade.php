@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    {{config(app.name)}} || Create Appointment
+    {{config('app.name')}} || Create Appointment
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">

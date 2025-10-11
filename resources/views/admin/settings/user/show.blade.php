@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    {{config(app.name)}} || User Profile
+    {{config('app.name')}} || User Profile
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">

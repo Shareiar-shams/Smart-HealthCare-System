@@ -1,7 +1,7 @@
 @extends('layouts.administration.app')
 
 @section('admin_title_content')
-    {{config(app.name)}} || Manage Appointments
+    {{config('app.name')}} || Manage Appointments
 @endsection
 
 @section('admin_content_header')
