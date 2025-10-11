@@ -36,14 +36,14 @@
                 </p>
                 <p class="mb-3">
                     <i class="fas fa-hourglass-half text-warning me-1"></i>
-                    Duration: {{ $appointment->duration }} minutes
+                    Duration: {{ $appointment->duration ?? \Carbon\Carbon::parse($appointment->end_at)->diffInMinutes(\Carbon\Carbon::parse($appointment->start_at)) }} minutes
                 </p>
             </div>
             <div class="col-md-6">
                 <h6 class="text-muted mb-1">Patient</h6>
                 <p class="mb-3">
                     <strong>{{ $appointment->patient->name }}</strong><br>
-                    <small class="text-muted">{{ $appointment->patient->profile->phone }}</small>
+                    <small class="text-muted">{{ $appointment->patient->profile->contact_no ?? 'N/A' }}</small>
                 </p>
 
                 <h6 class="text-muted mb-1">Status</h6>
