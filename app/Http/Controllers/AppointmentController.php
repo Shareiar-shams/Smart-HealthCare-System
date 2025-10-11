@@ -8,11 +8,11 @@ use App\Http\Requests\Administration\Appoinment\UpdateAppointmentRequest;
 use App\Models\Appointment\Appointment;
 use App\Models\Doctor\Doctor;
 use App\Services\Administration\Appointment\AppointmentService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Models\User;
+
 
 class AppointmentController extends Controller
 {
@@ -47,8 +47,7 @@ class AppointmentController extends Controller
 
     public function create()
     {
-        $doctors = Doctor::with('user')->get();
-        $specialties = DoctorSpecialty::getValues();
+        [$doctors, $specialties] = $this->appointmentService->getDcotorInformation();
         return view('admin.appointments.create', compact('doctors', 'specialties'));
     }
 
@@ -102,8 +101,7 @@ class AppointmentController extends Controller
 
     public function edit(Appointment $appointment)
     {
-        $doctors = Doctor::with('user')->get();
-        $specialties = DoctorSpecialty::getValues();
+        [$doctors, $specialties] = $this->appointmentService->getDcotorInformation();
         return view('admin.appointments.edit', compact('appointment', 'doctors', 'specialties'));
     }
 
@@ -154,5 +152,115 @@ class AppointmentController extends Controller
     {
         $appointments = Appointment::with('doctor')->where('patient_id', Auth::id())->orderBy('appointment_date', 'desc')->paginate(12);
         return view('admin.appointments.my', compact('appointments'));
+    }
+
+    public function myPatientsAppointments(){
+        $doctor = Auth::user()->doctor;
+
+        if (!$doctor) {
+            abort(403, 'Access denied. User is not a doctor.');
+        }
+
+        // Get appointments for this doctor with relationships
+        $appointments = Appointment::with(['patient', 'doctor'])
+            ->where('doctor_id', Auth::user()->doctor->id)
+            ->orderBy('start_at', 'desc')
+            ->paginate(12);
+        // Get stats for this doctor
+        $stats = $this->appointmentService->getDoctorStats($doctor);
+
+        // Get today's appointments for schedule
+        $todayAppointments = Appointment::with(['patient'])
+            ->where('doctor_id', Auth::user()->doctor->id)
+            ->whereDate('start_at', Carbon::today())
+            ->orderBy('start_at')
+            ->get();
+
+        // Get recent activity (appointments from last 7 days)
+        $recentActivity = Appointment::with(['patient'])
+            ->where('doctor_id', Auth::user()->doctor->id)
+            ->where('created_at', '>=', Carbon::now()->subDays(7))
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.appointments.doctor.manage', compact('appointments', 'stats', 'todayAppointments', 'recentActivity'));
+    }
+
+    public function doctorAppointments(Request $request){
+        $doctor = Auth::user()->doctor;
+
+        if (!$doctor) {
+            abort(403, 'Access denied. User is not a doctor.');
+        }
+
+        $query = Appointment::with(['patient', 'doctor'])
+            ->where('doctor_id', Auth::user()->doctor->id);
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })->orWhere('reason', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('date')) {
+            $date = Carbon::parse($request->input('date'))->toDateString();
+            $query->whereDate('start_at', $date);
+        }
+
+        $appointments = $query->orderBy('start_at', 'desc')->paginate(12);
+
+        return view('admin.appointments.doctor._appointments_list', compact('appointments'))->render();
+    }
+
+    public function confirm(string $id){
+        $appointment = Appointment::findOrFail($id);
+        try {
+            if ($appointment->doctor_id !== Auth::user()->doctor->id) {
+                abort(403, 'Access denied.');
+            }
+
+            $appointment->update(['status' => 'confirmed']);
+
+            return redirect()->back()->with([
+                'message' => 'Appointment confirmed successfully!',
+                'alert-type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with([
+                'message' => 'Failed to confirm appointment: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ]);
+        }
+    }
+
+    public function reject(Request $request, string $id){
+        $appointment = Appointment::findOrFail($id);
+        try {
+            if ($appointment->doctor_id !== Auth::user()->doctor->id) {
+                abort(403, 'Access denied.');
+            }
+
+            $appointment->update([
+                'status' => 'cancelled',
+                'canceled_by' => Auth::user()->doctor->id,
+                'canceled_at' => Carbon::now(),
+                'notes' => $request->input('cancel_reason', $appointment->notes)
+            ]);
+
+            return redirect()->back()->with([
+                'message' => 'Appointment rejected successfully!',
+                'alert-type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with([
+                'message' => 'Failed to reject appointment: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ]);
+        }
     }
 }

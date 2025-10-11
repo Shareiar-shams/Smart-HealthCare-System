@@ -2,6 +2,7 @@
 
 namespace App\Services\Administration\Appointment;
 
+use App\Enums\DoctorSpecialty;
 use App\Models\Appointment\Appointment;
 use App\Models\Doctor\Doctor;
 use App\Models\User;
@@ -85,6 +86,25 @@ class AppointmentService
         return $data;
     }
 
+    public function getDoctorStats($doctor){
+        $doctorId = $doctor->id;
+
+        $data = [
+            'today' => Appointment::where('doctor_id', $doctorId)
+                ->whereDate('start_at', Carbon::today())->count(),
+            'confirmed' => Appointment::where('doctor_id', $doctorId)
+                ->where('status', 'confirmed')->count(),
+            'pending' => Appointment::where('doctor_id', $doctorId)
+                ->where('status', 'pending')->count(),
+            'week' => Appointment::where('doctor_id', $doctorId)
+                ->whereBetween('start_at', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->count(),
+        ];
+        return $data;
+    }
+
     public function getStatusCounts(){
         return Appointment::selectRaw('LOWER(status) as s, COUNT(*) as total')
             ->groupBy('s')
@@ -116,6 +136,12 @@ class AppointmentService
                 'data' => $trendData,
             ],
         ];
+    }
+    
+    public function getDcotorInformation(){
+        $doctors = $this->getDoctors();
+        $specialties = DoctorSpecialty::getValues();
+        return [$doctors, $specialties];
     }
     public function createAppointment(array $data)
     {
