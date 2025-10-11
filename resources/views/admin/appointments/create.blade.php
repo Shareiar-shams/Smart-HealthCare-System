@@ -89,10 +89,12 @@
                                                 <div class="flex-grow-1 ms-3">
                                                     <h5 class="mb-1">Dr. {{ $doctor->user->name }}</h5>
                                                     <p class="mb-0 text-muted">{{ $doctor->specialty }}</p>
+                                                    
                                                     <small class="text-muted">
                                                         <i class="fas fa-star text-warning"></i>
                                                         Experience: {{ $doctor->experience_years }} years
                                                     </small>
+                                                    <small class="mb-2 text-muted">Chamber: {{ $doctor->chamber_address ?? null}}</small>
                                                 </div>
                                                 <div class="doctor-fee text-end">
                                                     <strong class="text-primary">
@@ -213,12 +215,12 @@
         const timeSlot = $('#selected_time_slot').val();
         const reason = $('textarea[name="reason"]').val();
 
-        console.log('Validation Check:', {
-            doctorId: doctorId,
-            date: date,
-            timeSlot: timeSlot,
-            reason: reason
-        });
+        // console.log('Validation Check:', {
+        //     doctorId: doctorId,
+        //     date: date,
+        //     timeSlot: timeSlot,
+        //     reason: reason
+        // });
 
         const isValid = doctorId && date && timeSlot && reason && reason.trim() !== '';
         

@@ -8,7 +8,6 @@ use App\Http\Requests\Administration\Appoinment\UpdateAppointmentRequest;
 use App\Models\Appointment\Appointment;
 use App\Models\Doctor\Doctor;
 use App\Services\Administration\Appointment\AppointmentService;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,8 +18,8 @@ class AppointmentController extends Controller
     public function __construct(AppointmentService $appointmentService)
     {
         $this->appointmentService = $appointmentService;
-        $this->middleware('role:Super Admin|Patient')->only(['store', 'myAppointments']);
-$this->middleware('role:Super Admin')->only(['index', 'show', 'destroy']);
+        $this->middleware('role:Super Admin|Patient')->only(['store', 'myAppointments', 'show']);
+        $this->middleware('role:Super Admin')->only(['index', 'destroy']);
     }
 
     // List doctors (simple index)
@@ -42,135 +41,102 @@ $this->middleware('role:Super Admin')->only(['index', 'show', 'destroy']);
      */
     public function getTimeSlots(Request $request, Doctor $doctor): JsonResponse
     {
-        $date = Carbon::parse($request->date);
+        $date = $this->appointmentService->date($request->date);
         $currentAppointmentId = $request->get('current_appointment_id');
         
         // Get doctor's schedule for the day (assuming doctor has working hours)
-        $workingHours = $this->getDoctorWorkingHours($doctor, $date);
+        $workingHours = $this->appointmentService->getDoctorWorkingHours($doctor, $date);
         
         // Get existing appointments
-        $existingAppointments = Appointment::where('doctor_id', $doctor->id)
-            ->where('appointment_date', $date->format('Y-m-d'))
-            ->when($currentAppointmentId, function ($query) use ($currentAppointmentId) {
-                return $query->where('id', '!=', $currentAppointmentId);
-            })
-            ->where('status', '!=', 'cancelled')
-            ->get();
-
+        $existingAppointments = $this->appointmentService->getExistAppointmentsData($doctor, $currentAppointmentId, $date);
         // Generate available time slots
-        $slots = $this->generateTimeSlots($workingHours, $existingAppointments, $date);
+        $slots = $this->appointmentService->generateTimeSlots($workingHours, $existingAppointments, $date);
 
         return response()->json(['slots' => $slots]);
     }
 
     /**
-     * Get doctor's working hours for a specific day
+     * Store a new appointment.
+     *
+     * @param StoreAppointmentRequest $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    private function getDoctorWorkingHours(Doctor $doctor, Carbon $date): array
-    {
-        // This is a simplified example. In a real app, you'd fetch this from the doctor's schedule
-        $defaultWorkingHours = [
-            'start' => '09:00',
-            'end' => '17:00',
-            'slot_duration' => 30, // minutes
-            'break_start' => '13:00',
-            'break_end' => '14:00'
-        ];
-
-        // You can customize this based on the doctor's actual schedule
-        // For example, different hours for different days, or fetching from a schedule table
-        return $defaultWorkingHours;
-    }
-
-    /**
-     * Generate available time slots
-     */
-    private function generateTimeSlots(array $workingHours, $existingAppointments, Carbon $date): array
-    {
-        $slots = [];
-        $startTime = Carbon::parse($date->format('Y-m-d') . ' ' . $workingHours['start']);
-        $endTime = Carbon::parse($date->format('Y-m-d') . ' ' . $workingHours['end']);
-        $breakStart = Carbon::parse($date->format('Y-m-d') . ' ' . $workingHours['break_start']);
-        $breakEnd = Carbon::parse($date->format('Y-m-d') . ' ' . $workingHours['break_end']);
-
-        while ($startTime < $endTime) {
-            $slotEnd = $startTime->copy()->addMinutes($workingHours['slot_duration']);
-            
-            // Skip slots that fall in break time
-            if (!($startTime >= $breakStart && $startTime < $breakEnd)) {
-                $isAvailable = true;
-
-                // Check if slot conflicts with existing appointments
-                foreach ($existingAppointments as $appointment) {
-                    $appointmentStart = Carbon::parse($appointment->time_start);
-                    $appointmentEnd = Carbon::parse($appointment->time_end);
-
-                    if ($startTime < $appointmentEnd && $slotEnd > $appointmentStart) {
-                        $isAvailable = false;
-                        break;
-                    }
-                }
-
-                // Don't show past slots for today
-                if ($date->isToday() && $startTime->isPast()) {
-                    $isAvailable = false;
-                }
-
-                $slots[] = [
-                    'start' => $startTime->format('H:i'),
-                    'end' => $slotEnd->format('H:i'),
-                    'formatted_time' => $startTime->format('g:i A') . ' - ' . $slotEnd->format('g:i A'),
-                    'available' => $isAvailable
-                ];
-            }
-
-            $startTime->addMinutes($workingHours['slot_duration']);
-        }
-
-        return $slots;
-    }
-    // Show doctor detail and booking form
-    public function show(Doctor $doctor)
-    {
-        return view('admin.appointments.doctor', compact('doctor'));
-    }
-
-    // Store appointment
     public function store(StoreAppointmentRequest $request)
     {
-        $this->appointmentService->createAppointment($request->validated());
-        $notification = [
-            'message' => 'Appointment booked successfully!',
-            'alert-type' => 'success'
-        ];
-        return back()->with($notification);
+        try {
+            $appointment = $this->appointmentService->createAppointment($request->validated());
+            
+            return redirect()->route('administration.appointment.myAppointments')->with([
+                'message' => 'Appointment booked successfully!',
+                'alert-type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return back()->withInput()->with([
+                'message' => 'Failed to book appointment. ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ]);
+        }
+    }
+
+    // Show doctor detail and booking form
+    public function show(Appointment $appointment)
+    {
+        return view('admin.appointments.show', compact('appointment'));
+    }
+
+    public function edit(Appointment $appointment)
+    {
+        $doctors = Doctor::with('user')->get();
+        $specialties = DoctorSpecialty::getValues();
+        return view('admin.appointments.edit', compact('appointment', 'doctors', 'specialties'));
     }
 
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
-    
-        $this->appointmentService->updateAppointment($request->validated(), $appointment);
-        $notification = [
-            'message' => 'Appointment updated successfully!',
-            'alert-type' => 'success'
-        ];
-        return back()->with($notification);
+        try {
+            if (!$appointment->canBeEdited()) {
+                throw new \Exception('This appointment cannot be edited.');
+            }
+
+            $this->appointmentService->updateAppointment($request->validated(), $appointment);
+            
+            return redirect()->route('administration.appointment.show', $appointment->id)->with([
+                'message' => 'Appointment updated successfully!',
+                'alert-type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return back()->withInput()->with([
+                'message' => 'Failed to update appointment: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ]);
+        }
     }
     
     public function destroy(Appointment $appointment)
     {
-        $this->appointmentService->deleteAppointment($appointment);
-        $notification = [
-            'message' => 'Appointment deleted successfully!',
-            'alert-type' => 'success'
-        ];
-        return back()->with($notification);
+        try {
+            if (!$appointment->canBeCancelled()) {
+                throw new \Exception('This appointment cannot be cancelled.');
+            }
+
+            $this->appointmentService->deleteAppointment($appointment);
+            
+            return redirect()->route('administration.appointment.index')->with([
+                'message' => 'Appointment cancelled successfully!',
+                'alert-type' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return back()->with([
+                'message' => 'Failed to cancel appointment: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            ]);
+        }
     }
 
     // Show current user's appointments
     public function myAppointments()
     {
-        $appointments = Appointment::with('doctor')->where('patient_id', Auth::id())->orderBy('date', 'desc')->paginate(12);
+        $appointments = Appointment::with('doctor')->where('patient_id', Auth::id())->orderBy('appointment_date', 'desc')->paginate(12);
         return view('admin.appointments.my', compact('appointments'));
     }
 }

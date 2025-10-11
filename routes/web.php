@@ -1,10 +1,24 @@
 <?php
 
+use App\Http\Controllers\ViewportController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+
+Route::controller(ViewportController::class)->group( function () {
+    Route::get('/landing', 'landing')->name('landing');
+    Route::get('/', 'index')->name('index');
 });
+
+//predictions routes
+include 'viewport/prediction.php';
+// Blood Donation Routes
+include 'viewport/blooddonation.php';
+
+// Medical Learning Routes - ADD THESE
+include 'viewport/medicalLearning.php';
+
+// Resources Routes
+include 'viewport/resources.php';
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // administration dashboard

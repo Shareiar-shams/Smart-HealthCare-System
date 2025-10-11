@@ -1,0 +1,110 @@
+/* Fix for navbar overlap */
+nav {
+    z-index: 9999 !important;
+}
+body {
+    padding-top: 80px; /* Adjust based on your navbar height */
+}
+/* Ensure all content stays below navbar */
+.content-wrapper, .max-w-7xl, .container, main {
+    position: relative;
+    z-index: 1;
+}
+
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        background-attachment: fixed;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .refresh-pulse {
+        animation: refreshPulse 8s ease-in-out infinite;
+    }
+    
+    @keyframes refreshPulse {
+        0%, 100% { 
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% { 
+            opacity: 0.9;
+            transform: scale(1.01);
+        }
+    }
+    
+    .floating-card {
+        animation: floatCard 6s ease-in-out infinite;
+    }
+    
+    @keyframes floatCard {
+        0%, 100% { transform: translateY(0px) rotateX(0deg); }
+        50% { transform: translateY(-10px) rotateX(5deg); }
+    }
+    
+    .gradient-text {
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .risk-low { background: linear-gradient(135deg, #10b981, #34d399); }
+    .risk-medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .risk-high { background: linear-gradient(135deg, #ef4444, #f87171); }
+    
+    .health-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .health-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s;
+    }
+    
+    .health-card:hover::before {
+        left: 100%;
+    }
+    
+    .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa);
+        transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after,
+    .nav-link.active::after {
+        width: 100%;
+    }
+    
+    .data-refresh {
+        animation: dataRefresh 2s ease-in-out;
+    }
+    
+    @keyframes dataRefresh {
+        0% { opacity: 0.5; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1); }
+    }

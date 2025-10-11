@@ -2,6 +2,7 @@
 
 namespace App\Models\Appointment\Relations;
 
+use App\Models\Doctor\Doctor;
 use App\Models\User;
 
 trait AppointmentRelations
@@ -10,6 +11,6 @@ trait AppointmentRelations
         return $this->belongsTo(User::class, 'patient_id'); 
     }
     public function doctor()  { 
-        return $this->belongsTo(User::class, 'doctor_id'); 
+        return $this->belongsTo(Doctor::class, 'doctor_id'); 
     }
 }

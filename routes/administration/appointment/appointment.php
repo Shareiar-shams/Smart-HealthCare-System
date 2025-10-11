@@ -10,10 +10,10 @@ Route::prefix('/appointment')->controller(AppointmentController::class)
         Route::get('/index', 'index')->name('index')->can('Appointment Read');
         Route::get('/create', 'create')->name('create')->can('Appointment Create');
         Route::post('/store', 'store')->name('store')->can('Appointment Create');
-        Route::post('{id}/show', 'show')->name('show')->can('Appointment Read');
-        Route::get('/{id}/edit', 'edit')->name('edit')->can('Appointment Update');
-        Route::put('/{id}/update', 'update')->name('update')->can('Appointment Update');
-        Route::delete('/{id}/delete', 'destroy')->name('destroy')->can('Appointment Delete');
+        Route::get('{appointment}/show', 'show')->name('show')->can('Appointment Read');
+        Route::get('/{appointment}/edit', 'edit')->name('edit')->can('Appointment Update');
+        Route::put('/{appointment}/update', 'update')->name('update')->can('Appointment Update');
+        Route::delete('/{appointment}/delete', 'destroy')->name('delete')->can('Appointment Delete');
     });
 Route::prefix('/api')->controller(AppointmentController::class)
     ->group(function () {

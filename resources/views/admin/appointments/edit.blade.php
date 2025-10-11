@@ -65,10 +65,12 @@
                                         <div class="flex-grow-1 ms-3">
                                             <h5 class="mb-1">Dr. {{ $appointment->doctor->user->name }}</h5>
                                             <p class="mb-0 text-muted">{{ $appointment->doctor->specialty }}</p>
-                                            <small class="text-muted">
+                                            <small class="text-muted mb-2">
                                                 <i class="fas fa-star text-warning"></i>
                                                 Experience: {{ $appointment->doctor->experience_years }} years
                                             </small>
+                                            <br>
+                                            <small class="mb-2 text-muted">Chamber: {{ $doctor->chamber_address ?? null}}</small>
                                         </div>
                                         <div class="text-end">
                                             <strong class="text-primary">
@@ -85,7 +87,7 @@
                         <div class="form-group mb-3">
                             <label>Appointment Date</label>
                             <input type="date" class="form-control" name="date" id="appointment_date" 
-                                value="{{ $appointment->date }}"
+                                value="{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('Y-m-d') }}"
                                 min="{{ date('Y-m-d') }}" 
                                 max="{{ date('Y-m-d', strtotime('+30 days')) }}"
                                 onchange="loadTimeSlots()" required>
@@ -116,7 +118,7 @@
                         </div>
 
                         <div class="form-group d-flex justify-content-between">
-                            <a href="{{ route('administration.appointment.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('administration.appointment.myAppointments') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Back
                             </a>
                             <button type="submit" class="btn btn-primary" id="submitBtn">

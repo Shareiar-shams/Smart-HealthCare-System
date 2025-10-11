@@ -44,6 +44,8 @@
                                         <i class="fas fa-star text-warning"></i>
                                         Experience: {{ $appointment->doctor->experience_years }} years
                                     </small>
+                                    <br>
+                                    <small class="mb-2 text-muted">Chamber: {{ $appointment->doctor->chamber_address ?? null}}</small>
                                 </div>
                             </div>
                         </div>
@@ -55,9 +57,9 @@
                             <h5 class="card-title">Appointment Details</h5>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Date:</strong> {{ Carbon::parse($appointment->date)->format('F j, Y') }}</p>
-                                    <p><strong>Time:</strong> {{ Carbon::parse($appointment->time_start)->format('g:i A') }} - 
-                                        {{ Carbon::parse($appointment->time_end)->format('g:i A') }}</p>
+                                    <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('F j, Y') }}</p>
+                                    <p><strong>Time:</strong> {{ \Carbon\Carbon::parse($appointment->start_at)->format('g:i A') }} - 
+                                        {{ \Carbon\Carbon::parse($appointment->end_at)->format('g:i A') }}</p>
                                     <p><strong>Consultation Fee:</strong> ${{ number_format($appointment->doctor->consultation_fee, 2) }}</p>
                                 </div>
                                 <div class="col-md-6">
@@ -71,8 +73,11 @@
 
                     <!-- Reason and Notes -->
                     <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-2">Reason & Notes</h5>
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">Reason & Notes</h5>
+                            
                             <div class="mb-3">
                                 <strong>Reason for Visit:</strong>
                                 <p class="mt-2">{{ $appointment->reason }}</p>
@@ -94,14 +99,14 @@
                                     <i class="fas fa-arrow-left me-2"></i>Back to List
                                 </a>
                                 <div>
-                                    @if($appointment->canBeEdited())
-                                    <a href="{{ route('administration.appointment.edit', $appointment->id) }}" 
-                                        class="btn btn-primary me-2">
-                                        <i class="fas fa-edit me-2"></i>Edit
-                                    </a>
-                                    @endif
+                                    @can('Appointment Update')
+                                        <a href="{{ route('administration.appointment.edit', $appointment->id) }}" 
+                                            class="btn btn-primary me-2">
+                                            <i class="fas fa-edit me-2"></i>Edit
+                                        </a>
+                                    @endcan
 
-                                    @if($appointment->canBeCancelled())
+                                    @can('Appointment Delete')
                                     <button type="button" class="btn btn-danger" 
                                         onclick="confirmCancellation()">
                                         <i class="fas fa-times-circle me-2"></i>Cancel Appointment
@@ -113,7 +118,7 @@
                                         @csrf
                                         @method('DELETE')
                                     </form>
-                                    @endif
+                                    @endcan
                                 </div>
                             </div>
                         </div>

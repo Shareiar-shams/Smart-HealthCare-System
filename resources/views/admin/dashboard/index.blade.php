@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    AHVision | Dashboard
+    Medivus | Dashboard
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">

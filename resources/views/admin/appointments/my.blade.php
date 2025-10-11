@@ -48,8 +48,8 @@
                                     <tr>
                                         <th>{{ serial($appointment, $key) }}</th>
                                         <td>{{ $appointment->doctor->user->name ?? 'N/A' }}</td>
-                                        <td>{{ Carbon::parse($a->date)->format('Y-m-d') }}</td>
-                                        <td>{{ $appointment->time }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('Y-m-d') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($appointment->start_at)->format('h:i A') }} - {{ \Carbon\Carbon::parse($appointment->end_at)->format('h:i A') }}</td>
                                         <td>{{ ucfirst($appointment->status) }}</td>
                                         <td>{{ Str::limit($appointment->notes, 60) }}</td>
                                         <td>
@@ -58,21 +58,26 @@
                                                     <span class="sr-only">Toggle Dropdown</span>
                                                 </button>
                                                 <div class="dropdown-menu" role="menu">
-                                                    <a class="dropdown-item" href="javascript:void(0);"><i class="fas fa-edit"></i> Edit</a>
+                                                    @can('Appointment Update')
+                                                        <a class="dropdown-item" href="{{ route('administration.appointment.edit', ['appointment' => $appointment]) }}"><i class="fas fa-edit"></i> Edit</a>
+                                                    @endcan
+                                                    
+                                                    @can('Appointment Read')
+                                                        <a class="dropdown-item" href="{{ route('administration.appointment.show', ['appointment' => $appointment]) }}"><i class="fas fa-eye"></i> Show</a>
+                                                    @endcan
+                                                    @can('Appointment Delete')
+                                                        <a class="dropdown-item text-danger" href="#"
+                                                        onclick="event.preventDefault(); confirmDelete('delete-form-permission-delete-{{ $appointment->id }}')">
+                                                            <i class="fas fa-trash-alt"></i> Delete
+                                                        </a>
 
-                                                    <a class="dropdown-item" href="{{ route('administration.appointment.show', $appointment->id) }}"><i class="fas fa-eye"></i> Show</a>
-
-                                                    <a class="dropdown-item text-danger" href="#"
-                                                    onclick="event.preventDefault(); confirmDelete('delete-form-permission-delete-{{ $appointment->id }}')">
-                                                        <i class="fas fa-trash-alt"></i> Delete
-                                                    </a>
-
-                                                    <form id="delete-form-permission-delete-{{ $appointment->id }}" 
-                                                        action="{{ route('administration.appointment.delete', $appointment->id) }}" 
-                                                        method="POST" style="display:none;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
+                                                        <form id="delete-form-permission-delete-{{ $appointment->id }}" 
+                                                            action="{{ route('administration.appointment.delete', ['appointment' => $appointment]) }}" 
+                                                            method="POST" style="display:none;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                    @endcan
                                                     
                                                 </div>
                                             </div>

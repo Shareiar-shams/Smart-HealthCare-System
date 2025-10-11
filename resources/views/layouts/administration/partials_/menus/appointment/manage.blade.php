@@ -1,6 +1,6 @@
 @php
 $isActive = 
-    Route::is('administration.appointment.index') 
+    Route::is('administration.appointment.myAppointments');
 @endphp
 <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
     <a href="#" class="nav-link">
@@ -11,10 +11,10 @@ $isActive =
         </p>
     </a>
     <ul class="nav nav-treeview">
-        @if(auth()->user()->can('Appointment Update') && (auth()->user()->hasRole('Patient') || auth()->user()->hasRole('Super Admin') ))
+        @if(auth()->user()->can('Appointment Read') && (auth()->user()->hasRole('Patient') || auth()->user()->hasRole('Super Admin') ))
             <li class="nav-item">
                 <a href="{{ route('administration.appointment.myAppointments') }}" 
-                class="nav-link {{ Route::is('administration.appointment.index') ? 'active' : '' }}">
+                class="nav-link {{ Route::is('administration.appointment.myAppointments') ? 'active' : '' }}">
                     <i class="far fa-circle nav-icon"></i>
                     <p>My Appointments</p>
                 </a>
