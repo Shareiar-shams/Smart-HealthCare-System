@@ -1,7 +1,7 @@
 @extends('layouts.administration.app')
 
 @section('admin_title_content')
-    Smart HealthCare | Appointment Management
+    {{config(app.name)}} || Appointment Management
 @endsection
 
 @section('admin_content_header')

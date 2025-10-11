@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    Smart HealthCare | Appointment Details
+    {{config(app.name)}} || Appointment Details
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">

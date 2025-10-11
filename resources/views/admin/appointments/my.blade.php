@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    AHVision | My Appointments
+   {{config(app.name)}} || My Appointments
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">

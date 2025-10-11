@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    Medivus | Dashboard
+    {{config(app.name)}} || Dashboard
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">
