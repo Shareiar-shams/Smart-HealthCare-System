@@ -9,4 +9,7 @@ Route::controller(HomeController::class)->group(function () {
 
     // admin Activity Log
     Route::get('activities', 'activities')->name('activities.index');
+
+    //cache clear
+    Route::get('cache/clear', 'cache')->name('cache.clear');
 });
