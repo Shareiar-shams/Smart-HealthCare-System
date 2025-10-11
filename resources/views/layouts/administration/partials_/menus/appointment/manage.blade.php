@@ -1,6 +1,8 @@
 @php
 $isActive = 
-    Route::is('administration.appointment.myAppointments');
+    Route::is('administration.appointment.myAppointments') ||
+    Route::is('administration.appointment.create')
+;
 @endphp
 <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
     <a href="#" class="nav-link">
@@ -17,6 +19,13 @@ $isActive =
                 class="nav-link {{ Route::is('administration.appointment.myAppointments') ? 'active' : '' }}">
                     <i class="far fa-circle nav-icon"></i>
                     <p>My Appointments</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('administration.appointment.create') }}" 
+                class="nav-link {{ Route::is('administration.appointment.create') ? 'active' : '' }}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Appointment Create</p>
                 </a>
             </li>
         @endif
