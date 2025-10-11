@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('appointment_date')->nullable();
             $table->timestamp('start_at');
             $table->timestamp('end_at');
-            $table->unsignedSmallInteger('duration')->comment('minutes');
+            $table->unsignedSmallInteger('duration')->comment('minutes')->nullable();
             $table->string('status')->default('pending'); // pending, confirmed, cancelled, completed
             $table->string('reason')->nullable();
             $table->text('notes')->nullable();
