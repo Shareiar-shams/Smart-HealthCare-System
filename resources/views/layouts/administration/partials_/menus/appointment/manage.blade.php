@@ -1,7 +1,9 @@
 @php
 $isActive = 
+    Route::is('administration.appointment.index') ||
     Route::is('administration.appointment.myAppointments') ||
-    Route::is('administration.appointment.create')
+    Route::is('administration.appointment.create') ||
+    Route::is('administration.appointment.myPatientsAppointments')
 ;
 @endphp
 <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
@@ -13,6 +15,15 @@ $isActive =
         </p>
     </a>
     <ul class="nav nav-treeview">
+        @if(auth()->user()->can('Appointment Read') && auth()->user()->hasRole('Super Admin') )
+            <li class="nav-item">
+                <a href="{{ route('administration.appointment.index') }}" 
+                class="nav-link {{ Route::is('administration.appointment.index') ? 'active' : '' }}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>All Appointments</p>
+                </a>
+            </li>
+        @endif
         @if(auth()->user()->can('Appointment Read') && (auth()->user()->hasRole('Patient') || auth()->user()->hasRole('Super Admin') ))
             <li class="nav-item">
                 <a href="{{ route('administration.appointment.myAppointments') }}" 
@@ -29,19 +40,15 @@ $isActive =
                 </a>
             </li>
         @endif
-        {{-- <li class="nav-item">
-            <a href="{{route('administration.appointment.rolepermission.role.index')}}" class="nav-link {{ Route::is('administration.settings.rolepermission.role.index') ? 'active' : '' }}">
-            
-                <i class="far fa-circle nav-icon"></i>
-                <p>Role</p>
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{{ route('administration.settings.user.index') }}" class="nav-link {{ Route::is('administration.settings.user.index') ? 'active' : '' }}">
-            
-                <i class="far fa-circle nav-icon"></i>
-                <p>System User</p>
-            </a>
-        </li> --}}
+
+        @if(auth()->user()->can('Appointment Read') && (auth()->user()->hasRole('Doctor') || auth()->user()->hasRole('Super Admin') ))
+            <li class="nav-item">
+                <a href="{{ route('administration.appointment.myPatientsAppointments') }}" 
+                class="nav-link {{ Route::is('administration.appointment.myPatientsAppointments') ? 'active' : '' }}">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>All Patients Appointments</p>
+                </a>
+            </li>
+        @endif
     </ul>
 </li>
