@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Administration\Appointment;
 
 use App\Enums\DoctorSpecialty;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Appoinment\StoreAppointmentRequest;
 use App\Http\Requests\Administration\Appoinment\UpdateAppointmentRequest;
 use App\Models\Appointment\Appointment;
