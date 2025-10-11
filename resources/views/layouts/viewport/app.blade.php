@@ -31,5 +31,7 @@
 
     <!-- Scripts -->
     @include('layouts.viewport.partials_.viewport-js')
+
+    @include('components.chatbot')
 </body>
 </html>
