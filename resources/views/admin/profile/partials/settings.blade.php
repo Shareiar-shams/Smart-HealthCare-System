@@ -39,16 +39,16 @@
     </div>
 
     {{-- Common Profile Fields for all roles --}}
-    @if ($roleNameLower === 'Patient')
+    @if ($roleNameLower === 'patient')
         
         @include('admin.profile.partials.roleBasedFields.general_profile_fields')
     {{-- Doctor Fields --}}
-    @elseif($roleNameLower === 'Doctor')
+    @elseif($roleNameLower === 'doctor')
         @include('admin.profile.partials.roleBasedFields.doctor_fields')
     @endif
 
     {{-- Pharmacy Fields --}}
-    @if($roleNameLower === 'Pharmacy')
+    @if($roleNameLower === 'pharmacy')
         @include('admin.profile.partials.roleBasedFields.pharmacy_fields')
     @endif
 
