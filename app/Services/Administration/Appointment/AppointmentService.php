@@ -23,6 +23,100 @@ class AppointmentService
         };
         return $appointments;
     }
+
+    public function getAppointmentWithOrder(){
+        $query = Appointment::with(['doctor.user', 'patient.profile'])
+            ->orderByDesc('appointment_date')
+            ->orderByDesc('start_at');
+        return $query;
+    }
+
+    public function filterdAppointmentData($request){
+        // Filters
+        $query = $this->getAppointmentWithOrder();
+        if ($request->filled('status')) {
+            $status = strtolower($request->input('status'));
+            if (in_array($status, ['canceled', 'cancelled'])) {
+                $query->whereIn('status', ['canceled', 'cancelled']);
+            } else {
+                $query->where('status', $status);
+            }
+        }
+
+        if ($request->filled('doctor_id')) {
+            $query->where('doctor_id', $request->input('doctor_id'));
+        }
+
+        if ($request->filled('date')) {
+            $date = Carbon::parse($request->input('date'))->toDateString();
+            $query->where(function ($q) use ($date) {
+                $q->whereDate('appointment_date', $date)
+                  ->orWhereDate('start_at', $date);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })->orWhereHas('doctor.user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })->orWhere('reason', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate(12)->withQueryString();
+    }
+
+    public function getDoctors(){
+        return Doctor::with('user')->get();
+    }
+
+    public function getStats(){
+        $data = [
+            'total' => Appointment::count(),
+            'today' => Appointment::whereDate('start_at', Carbon::today())->count(),
+            'doctors' => Doctor::whereHas('user', function ($q) {
+                $q->where('status', 'Active');
+            })->count(),
+            'patients' => User::query()->role('Patient')->count(),
+        ];
+        return $data;
+    }
+
+    public function getStatusCounts(){
+        return Appointment::selectRaw('LOWER(status) as s, COUNT(*) as total')
+            ->groupBy('s')
+            ->pluck('total', 's')
+            ->toArray();
+    }
+
+    public function getChartsData(){
+        // Charts data
+        $statusCounts = $this->getStatusCounts();
+        $statusData = [
+            $statusCounts['pending'] ?? 0,
+            $statusCounts['confirmed'] ?? 0,
+            ($statusCounts['canceled'] ?? 0) + ($statusCounts['cancelled'] ?? 0),
+        ];
+
+        $labels = [];
+        $trendData = [];
+        $start = Carbon::today()->subDays(6);
+        for ($i = 0; $i < 7; $i++) {
+            $day = $start->copy()->addDays($i);
+            $labels[] = $day->format('D');
+            $trendData[] = Appointment::whereDate('start_at', $day)->count();
+        }
+        return $charts = [
+            'status' => $statusData,
+            'weekly' => [
+                'labels' => $labels,
+                'data' => $trendData,
+            ],
+        ];
+    }
     public function createAppointment(array $data)
     {
         try {

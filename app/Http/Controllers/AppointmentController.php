@@ -11,6 +11,8 @@ use App\Services\Administration\Appointment\AppointmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+use App\Models\User;
 
 class AppointmentController extends Controller
 {
@@ -22,11 +24,25 @@ class AppointmentController extends Controller
         $this->middleware('role:Super Admin')->only(['index', 'destroy']);
     }
 
-    // List doctors (simple index)
-    public function index()
+    // List appointments with filters, stats and charts for admin
+    public function index(Request $request)
     {
-        $appointments = $this->appointmentService->getAppointmentsData();
-        return view('admin.appointments.my', compact('appointments'));
+        
+        $appointments = $this->appointmentService->filterdAppointmentData($request);
+
+        // If AJAX, return just the list partial for dynamic updates
+        if ($request->ajax()) {
+            return view('admin.appointments.admin._list', compact('appointments'))->render();
+        }
+
+        // Data for filters and stats
+        $doctors = $this->appointmentService->getDoctors();
+
+        $stats = $this->appointmentService->getStats();
+
+        $charts = $this->appointmentService->getChartsData();
+
+        return view('admin.appointments.admin.index', compact('appointments', 'doctors', 'stats', 'charts'));
     }
 
     public function create()
