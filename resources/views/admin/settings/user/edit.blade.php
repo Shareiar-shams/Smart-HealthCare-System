@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    AHVision | Edit User
+    {{config(app.name)}} || Edit User
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">
