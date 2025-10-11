@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('consultation_fee', 10, 2);
             $table->json('available_days');
             $table->json('available_time');
+            $table->string('duration')->default(30); // Duration in minutes
             $table->text('bio')->nullable();
             $table->timestamps();
             $table->softDeletes();
