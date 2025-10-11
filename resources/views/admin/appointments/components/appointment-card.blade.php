@@ -92,6 +92,22 @@
                     <button type="button" class="btn btn-danger btn-sm" onclick="rejectAppointment({{ $appointment->id }})">
                         <i class="fas fa-times me-1"></i> Reject
                     </button>
+                @elseif($appointment->status === 'confirmed')
+                    @php
+                        $existingPrescription = \App\Models\Prescription\Prescription::where('appointment_id', $appointment->id)->first();
+                    @endphp
+                    @if(!$existingPrescription)
+                        <a href="{{ route('administration.prescriptions.create', $appointment->id) }}" class="btn btn-primary btn-sm me-2">
+                            <i class="fas fa-prescription me-1"></i> Create Prescription
+                        </a>
+                    @else
+                        <a href="{{ route('administration.prescriptions.show', $appointment->id) }}" class="btn btn-info btn-sm me-2">
+                            <i class="fas fa-eye me-1"></i> View Prescription
+                        </a>
+                        <a href="{{ route('administration.prescriptions.pdf', $appointment->id) }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="fas fa-download me-1"></i> PDF
+                        </a>
+                    @endif
                 @endif
             @endif
 
