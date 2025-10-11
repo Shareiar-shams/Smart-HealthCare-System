@@ -13,7 +13,7 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
     	<li class="nav-item">
-        	<a class="btn btn-sm btn-primary mt-1" title="website" href="" target="_blank">View Website
+        	<a class="btn btn-sm btn-primary mt-1" title="website" href="{{route('index')}}" target="_blank">View Website
             </a>
       	</li>
       	
