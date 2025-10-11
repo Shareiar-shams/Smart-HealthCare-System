@@ -23,7 +23,7 @@ class RegisteredUserController extends Controller
     */
     public function create(): View
     {
-        $roles = Role::whereNotIn('name', ['admin', 'administration', 'patient'])->get();
+        $roles = Role::whereNotIn('name', ['admin', 'super admin', 'administration'])->get();
         return view('auth.register', compact('roles'));
     }
 
@@ -34,51 +34,88 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validate base user fields and role
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string'],
-            // Common profile fields
-            'phone' => ['sometimes', 'string', 'max:20'],
-            'address' => ['sometimes', 'string'],
-            'gender' => ['sometimes', 'string', 'in:male,female,other'],
-            'blood_group' => ['sometimes', 'string'],
-            // Doctor specific fields
-            'specialty' => ['required_if:role,*--doctor', 'string'],
-            'qualification' => ['required_if:role,*--doctor', 'string'],
-            'experience_years' => ['required_if:role,*--doctor', 'integer', 'min:0'],
-            'license_number' => ['required_if:role,*--doctor', 'string', 'unique:doctors,license_number'],
-            'consultation_fee' => ['required_if:role,*--doctor', 'numeric', 'min:0'],
-            'bio' => ['sometimes', 'string'],
-            // Pharmacy specific fields
-            'pharmacy_name' => ['required_if:role,*--pharmacy', 'string'],
-            'city' => ['required_if:role,*--pharmacy', 'string'],
-            'state' => ['required_if:role,*--pharmacy', 'string'],
-            'postal_code' => ['required_if:role,*--pharmacy', 'string'],
-            'delivery_available' => ['sometimes', 'boolean'],
-            'emergency_service' => ['sometimes', 'boolean'],
-            'description' => ['sometimes', 'string'],
         ]);
 
-        // 1. Get the combined value from the request
+        // Parse role from the combined value (id--name)
         $combinedValue = $request->input('role');
         $roleId = null;
         $roleName = null;
-        // 2. Check if the value exists and contains the separator
         if ($combinedValue && str_contains($combinedValue, '--')) {
-            
-            // 3. Explode the string using the separator ('--')
-            $parts = explode('--', $combinedValue, 2); 
-            
-            // 4. Assign the separated values
+            $parts = explode('--', $combinedValue, 2);
             $roleId = $parts[0];
             $roleName = strtolower($parts[1]);
         } else {
-            // Handle the case where the value is not in the expected format
             return back()->withErrors(['role' => 'Invalid role selection.']);
         }
 
+        // Dynamic validation based on role
+        $roleSpecificRules = [];
+        if ($roleName === 'doctor') {
+            $roleSpecificRules = [
+                'specialty' => ['required', 'string'],
+                'qualification' => ['required', 'string'],
+                'experience_years' => ['required', 'integer', 'min:0'],
+                'license_number' => ['required', 'string', 'unique:doctors,license_number'],
+                'consultation_fee' => ['required', 'numeric', 'min:0'],
+                'chamber_address' => ['sometimes', 'string', 'nullable'],
+                'bio' => ['sometimes', 'string', 'nullable'],
+                'available_days' => ['required', 'array', 'min:1'],
+                'available_days.*' => ['string', 'in:Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'],
+                'opening_time' => ['required', 'date_format:H:i'],
+                'closing_time' => ['required', 'date_format:H:i'],
+                'time_slot_duration' => ['required', 'integer', 'min:15', 'max:120'],
+            ];
+        } elseif ($roleName === 'pharmacy') {
+            $roleSpecificRules = [
+                'pharmacy_name' => ['required', 'string'],
+                'owner_name' => ['sometimes', 'string', 'nullable'],
+                'license_number' => ['required', 'string', 'unique:pharmacies,license_number'],
+                'contact_no' => ['required', 'string', 'max:20'],
+                'address' => ['required', 'string'],
+                'city' => ['required', 'string'],
+                'state' => ['required', 'string'],
+                'postal_code' => ['required', 'string'],
+                'opening_time' => ['required', 'date_format:H:i'],
+                'closing_time' => ['required', 'date_format:H:i'],
+                'delivery_available' => ['sometimes', 'boolean'],
+                'emergency_service' => ['sometimes', 'boolean'],
+                'description' => ['sometimes', 'string', 'nullable'],
+            ];
+        } elseif ($roleName === 'patient') {
+            $roleSpecificRules = [
+                'contact_no' => ['required', 'string', 'max:20'],
+                'address' => ['required', 'string'],
+                'city' => ['required', 'string'],
+                'state' => ['required', 'string'],
+                'postal_code' => ['required', 'string'],
+                'country' => ['required', 'string'],
+                'date_of_birth' => ['required', 'date'],
+                'gender' => ['required', 'string', 'in:male,female,other'],
+                'blood_group' => ['required', 'string'],
+            ];
+        } else {
+            $roleSpecificRules = [
+                'contact_no' => ['sometimes', 'string', 'max:20'],
+                'address' => ['sometimes', 'string'],
+                'city' => ['sometimes', 'string'],
+                'state' => ['sometimes', 'string'],
+                'postal_code' => ['sometimes', 'string'],
+                'country' => ['sometimes', 'string'],
+                'date_of_birth' => ['sometimes', 'date'],
+                'gender' => ['sometimes', 'string', 'in:male,female,other'],
+                'blood_group' => ['sometimes', 'string'],
+            ];
+        }
+
+        $request->validate($roleSpecificRules);
+
+        // Create user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -87,65 +124,62 @@ class RegisteredUserController extends Controller
         ]);
         $user->assignRole($roleName);
 
-        // Create basic profile for all users
-        $profileData = [
-            'user_id' => $user->id,
-            'contact_no' => $request->phone,
-            'address' => $request->address,
-            'gender' => $request->gender,
-            'blood_group' => $request->blood_group,
-            'city' => $request->city,
-            'state' => $request->state,
-            'postal_code' => $request->postal_code,
-        ];
-
-        switch ($roleName) {
-            case 'doctor':
-                UserProfile::create($profileData);
-                Doctor::create([
-                    'user_id' => $user->id,
-                    'specialty' => $request->specialty,
-                    'qualification' => $request->qualification,
-                    'experience_years' => $request->experience_years,
-                    'license_number' => $request->license_number,
-                    'consultation_fee' => $request->consultation_fee,
-                    'bio' => $request->bio,
-                    'available_days' => json_encode(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']), // Default value
-                    'available_time' => json_encode(['morning' => '09:00-13:00', 'evening' => '17:00-21:00']), // Default value
-                ]);
-                break;
-
-            case 'pharmacy':
-                UserProfile::create($profileData);
-                Pharmacy::create([
-                    'user_id' => $user->id,
-                    'pharmacy_name' => $request->pharmacy_name,
-                    'license_number' => $request->license_number,
-                    'contact_no' => $request->phone,
-                    'address' => $request->address,
-                    'city' => $request->city,
-                    'state' => $request->state,
-                    'postal_code' => $request->postal_code,
-                    'opening_hours' => json_encode([
-                        'weekdays' => '09:00-21:00',
-                        'weekends' => '10:00-18:00'
-                    ]),
-                    'delivery_available' => $request->boolean('delivery_available'),
-                    'emergency_service' => $request->boolean('emergency_service'),
-                    'description' => $request->description,
-                ]);
-                break;
-
-            case 'user':
-            case 'patient':
-            default:
-                UserProfile::create($profileData);
-                break;
-            
+        if($roleName === 'patient') {
+            // Create basic profile for all users
+            $profileData = [
+                'user_id' => $user->id,
+                'contact_no' => $request->input('contact_no'),
+                'address' => $request->input('address'),
+                'city' => $request->input('city'),
+                'state' => $request->input('state'),
+                'country' => $request->input('country'),
+                'postal_code' => $request->input('postal_code'),
+                'date_of_birth' => $request->input('date_of_birth'),
+                'gender' => $request->input('gender'),
+                'blood_group' => $request->input('blood_group'),
+            ];
+            UserProfile::create($profileData);
+        }
+        // Create role-specific records
+        elseif ($roleName === 'doctor') {
+            Doctor::create([
+                'user_id' => $user->id,
+                'specialty' => $request->specialty,
+                'qualification' => $request->qualification,
+                'experience_years' => $request->experience_years,
+                'license_number' => $request->license_number,
+                'chamber_address' => $request->input('chamber_address'),
+                'consultation_fee' => $request->consultation_fee,
+                'bio' => $request->input('bio'),
+                'available_days' => json_encode($request->input('available_days', [])),
+                'available_time' => json_encode([
+                    'opening_time' => $request->opening_time,
+                    'closing_time' => $request->closing_time,
+                ]),
+                'duration' => (string) $request->input('time_slot_duration', 30),
+            ]);
+        } elseif ($roleName === 'pharmacy') {
+            Pharmacy::create([
+                'user_id' => $user->id,
+                'pharmacy_name' => $request->pharmacy_name,
+                'owner_name' => $request->input('owner_name'),
+                'license_number' => $request->license_number,
+                'contact_no' => $request->contact_no,
+                'address' => $request->address,
+                'city' => $request->city,
+                'state' => $request->state,
+                'postal_code' => $request->postal_code,
+                'opening_hours' => json_encode([
+                    'opening_time' => $request->opening_time,
+                    'closing_time' => $request->closing_time,
+                ]),
+                'delivery_available' => $request->boolean('delivery_available'),
+                'emergency_service' => $request->boolean('emergency_service'),
+                'description' => $request->input('description'),
+            ]);
         }
 
         event(new Registered($user));
-
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
