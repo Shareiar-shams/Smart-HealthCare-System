@@ -270,6 +270,8 @@ function confirmCancellation() {
 }
 
 function deleteDocument(documentId) {
+    var url = "{{ route('administration.appointment.documents.destroy', ':id') }}";
+    url = url.replace(':id', documentId);
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this deletion!",
@@ -281,7 +283,7 @@ function deleteDocument(documentId) {
     }).then((result) => {
         if (result.isConfirmed) {
             // Send delete request
-            fetch('{{ route("administration.appointment.documents.destroy", "") }}/' + documentId, {
+            fetch(url, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
