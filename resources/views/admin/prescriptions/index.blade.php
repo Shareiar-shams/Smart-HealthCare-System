@@ -15,6 +15,9 @@
 @endsection
 
 @section('admin_vendor_css')
+    <!-- Select2 -->
+    <link rel="stylesheet" href="{{asset('assets/plugins/select2/css/select2.min.css')}}">
+    <link rel="stylesheet" href="{{asset('assets/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
     @include('admin.additionalObject.datatable-css')
 @endsection
 
@@ -58,7 +61,9 @@
                 <div class="card bg-success text-white">
                     <div class="card-body">
                         <h6 class="card-title">This Month</h6>
-                        <h2 class="mb-0">{{ $prescriptions->where('created_at', '>=', now()->startOfMonth())->count() }}</h2>
+                        <h2 class="mb-0">{{ $prescriptions->filter(function($prescription) {
+                            return $prescription->created_at >= now()->startOfMonth();
+                        })->count() }}</h2>
                     </div>
                 </div>
             </div>
@@ -74,7 +79,9 @@
                 <div class="card bg-warning text-dark">
                     <div class="card-body">
                         <h6 class="card-title">This Week</h6>
-                        <h2 class="mb-0">{{ $prescriptions->where('created_at', '>=', now()->startOfWeek())->count() }}</h2>
+                        <h2 class="mb-0">{{ $prescriptions->filter(function($prescription) {
+                            return $prescription->created_at >= now()->startOfWeek();
+                        })->count() }}</h2>
                     </div>
                 </div>
             </div>
@@ -90,17 +97,25 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex gap-2 justify-content-end">
-                                    <select id="statusFilter" class="form-select form-select-sm" style="width: auto;">
+                                    <select id="statusFilter" class="form-select input-group-sm select2bs4" style="width: auto;">
                                         <option value="">All Status</option>
                                         <option value="active">Active</option>
                                     </select>
-                                    <select id="doctorFilter" class="form-select form-select-sm" style="width: auto;">
+                                    <select id="doctorFilter" class="form-select input-group-sm select2bs4" style="width: auto;">
                                         <option value="">All Doctors</option>
-                                        @foreach($prescriptions->pluck('doctor.user')->unique('id') as $doctor)
-                                            <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
+                                        @php
+                                            $uniqueDoctors = $prescriptions->map(function($prescription) {
+                                                return [
+                                                    'id' => $prescription->doctor->user->id,
+                                                    'name' => $prescription->doctor->user->name
+                                                ];
+                                            })->unique('id')->sortBy('name');
+                                        @endphp
+                                        @foreach($uniqueDoctors as $doctor)
+                                            <option value="{{ $doctor['id'] }}">{{ $doctor['name'] }}</option>
                                         @endforeach
                                     </select>
-                                    <div class="input-group input-group-sm" style="width: 250px;">
+                                    <div class="input-group">
                                         <input type="text" id="searchInput" class="form-control" placeholder="Search prescriptions...">
                                         <button type="button" class="btn btn-outline-secondary">
                                             <i class="fas fa-search"></i>
@@ -232,6 +247,7 @@
 @section('admin_vendor_js')
 @endsection
 @section('admin_page_js')
+@include('admin.additionalObject.createDocumentScript')
 @include('admin.additionalObject.datatable-js')
 <script>
 $(document).ready(function() {

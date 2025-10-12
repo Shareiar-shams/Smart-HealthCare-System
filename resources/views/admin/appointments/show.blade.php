@@ -77,7 +77,7 @@
                             <h5 class="card-title mb-2">Reason & Notes</h5>
                         </div>
                         <div class="card-body">
-                            
+
                             <div class="mb-3">
                                 <strong>Reason for Visit:</strong>
                                 <p class="mt-2">{{ $appointment->reason }}</p>
@@ -90,6 +90,44 @@
                             @endif
                         </div>
                     </div>
+
+                    <!-- Prescription Section -->
+                    @php
+                        $prescription = \App\Models\Prescription\Prescription::where('appointment_id', $appointment->id)->first();
+                    @endphp
+
+                    @if($prescription)
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-prescription me-2"></i>
+                                Prescription Available
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p class="mb-2"><strong>Diagnosis:</strong> {{ $prescription->diagnosis }}</p>
+                                    <p class="mb-2"><strong>Medicines:</strong> {{ $prescription->items->count() }} prescribed</p>
+                                    <p class="mb-2"><strong>Created:</strong> {{ $prescription->created_at->format('M d, Y \a\t h:i A') }}</p>
+                                    @if($prescription->instructions)
+                                        <p class="mb-0"><strong>Instructions:</strong> {{ Str::limit($prescription->instructions, 100) }}</p>
+                                    @endif
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <a href="{{ route('administration.prescriptions.show', $appointment->id) }}"
+                                       class="btn btn-primary btn-sm me-2">
+                                        <i class="fas fa-eye me-1"></i> View Prescription
+                                    </a>
+                                    <a href="{{ route('administration.prescriptions.pdf', $appointment->id) }}"
+                                       class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fas fa-download me-1"></i> Download PDF
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     <!-- Actions -->
                     <div class="card">
@@ -128,6 +166,19 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('admin_page_css')
+<style>
+    .prescription-section {
+        border-left: 4px solid var(--bs-primary) !important;
+    }
+    .prescription-info {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1rem;
+        border-radius: 8px;
+    }
+</style>
 @endsection
 
 @section('admin_page_js')

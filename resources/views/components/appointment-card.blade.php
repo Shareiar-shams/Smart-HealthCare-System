@@ -36,14 +36,14 @@
                 </p>
                 <p class="mb-3">
                     <i class="fas fa-hourglass-half text-warning me-1"></i>
-                    Duration: {{ $appointment->duration }} minutes
+                    Duration: {{ $appointment->duration ?? \Carbon\Carbon::parse($appointment->end_at)->diffInMinutes(\Carbon\Carbon::parse($appointment->start_at)) }} minutes
                 </p>
             </div>
             <div class="col-md-6">
                 <h6 class="text-muted mb-1">Patient</h6>
                 <p class="mb-3">
                     <strong>{{ $appointment->patient->name }}</strong><br>
-                    <small class="text-muted">{{ $appointment->patient->profile->phone }}</small>
+                    <small class="text-muted">{{ $appointment->patient->profile->contact_no ?? 'N/A' }}</small>
                 </p>
 
                 <h6 class="text-muted mb-1">Status</h6>
@@ -92,22 +92,33 @@
                     <button type="button" class="btn btn-danger btn-sm" onclick="rejectAppointment({{ $appointment->id }})">
                         <i class="fas fa-times me-1"></i> Reject
                     </button>
+                @elseif($appointment->status === 'confirmed')
+                    @php
+                        $existingPrescription = \App\Models\Prescription\Prescription::where('appointment_id', $appointment->id)->first();
+                    @endphp
+                    @if(!$existingPrescription)
+                        <a href="{{ route('administration.prescriptions.create', $appointment->id) }}" class="btn btn-primary btn-sm me-2">
+                            <i class="fas fa-prescription me-1"></i> Create Prescription
+                        </a>
+                    @else
+                        <a href="{{ route('administration.prescriptions.show', $appointment->id) }}" class="btn btn-info btn-sm me-2">
+                            <i class="fas fa-eye me-1"></i> View Prescription
+                        </a>
+                        <a href="{{ route('administration.prescriptions.pdf', $appointment->id) }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="fas fa-download me-1"></i> PDF
+                        </a>
+                    @endif
                 @endif
             @endif
 
             @if(auth()->user()->hasRole('Super Admin'))
-                <div class="btn-group d-flex justify-content-betwen">
-                    @can('Appointment Update')
-                        <button type="button" class="btn btn-primary btn-sm" onclick="editAppointment({{ $appointment->id }})">
-                            <i class="fas fa-edit me-1"></i> Edit
-                        </button>
-                    @endcan
-                    @can('Appointment Delete')
-                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteAppointment({{ $appointment->id }})">
-                            <i class="fas fa-trash me-1"></i> Delete
-                        </button>
-                    @endcan
-                    
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="editAppointment({{ $appointment->id }})">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="deleteAppointment({{ $appointment->id }})">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
                 </div>
             @endif
         </div>

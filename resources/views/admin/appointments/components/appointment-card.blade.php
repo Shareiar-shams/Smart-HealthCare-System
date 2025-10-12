@@ -81,6 +81,24 @@
                     <button type="button" class="btn btn-danger btn-sm" onclick="cancelAppointment({{ $appointment->id }})">
                         <i class="fas fa-times me-1"></i> Cancel Appointment
                     </button>
+                @elseif($appointment->status === 'confirmed')
+                    @php
+                        $existingPrescription = \App\Models\Prescription\Prescription::where('appointment_id', $appointment->id)->first();
+                    @endphp
+                    @if($existingPrescription)
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-prescription text-success me-2"></i>
+                            <small class="text-success">Prescription Available</small>
+                        </div>
+                        <div class="btn-group-sm">
+                            <a href="{{ route('administration.prescriptions.show', $appointment->id) }}" class="btn btn-success btn-sm me-1">
+                                <i class="fas fa-eye me-1"></i> View Prescription
+                            </a>
+                            <a href="{{ route('administration.prescriptions.pdf', $appointment->id) }}" class="btn btn-outline-success btn-sm" target="_blank">
+                                <i class="fas fa-download me-1"></i> PDF
+                            </a>
+                        </div>
+                    @endif
                 @endif
             @endif
 
