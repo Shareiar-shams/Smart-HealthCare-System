@@ -164,21 +164,14 @@
                                                     </small>
                                                 </div>
                                                 <div class="dropdown">
-                                                    <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                    <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="{{ $document->file_url }}" target="_blank">
-                                                            <i class="fas fa-eye me-1"></i> View Document
-                                                        </a></li>
-                                                        <li><a class="dropdown-item" href="{{ $document->file_url }}" download>
-                                                            <i class="fas fa-download me-1"></i> Download
-                                                        </a></li>
+                                                    <ul class="dropdown-menu" role="menu">
                                                         @can('Appointment Update')
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteDocument({{ $document->id }})">
-                                                            <i class="fas fa-trash me-1"></i> Delete
-                                                        </a></li>
+                                                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteDocument({{ $document->id }})">
+                                                                <i class="fas fa-trash me-1"></i> Delete
+                                                            </a></li>
                                                         @endcan
                                                     </ul>
                                                 </div>
@@ -187,7 +180,7 @@
                                             <!-- Image Preview for Image Files -->
                                             @if(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
                                             <div class="mt-2">
-                                                <img src="{{ $document->file_url }}" alt="{{ $document->file_name }}" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                                <img src="{{ $document->image_url }}" alt="{{ $document->file_name }}" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
                                             </div>
                                             @endif
                                         </div>
