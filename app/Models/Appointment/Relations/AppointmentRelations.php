@@ -2,6 +2,7 @@
 
 namespace App\Models\Appointment\Relations;
 
+use App\Models\AppointmentDocument\AppointmentDocument;
 use App\Models\Doctor\Doctor;
 use App\Models\User;
 
@@ -12,5 +13,10 @@ trait AppointmentRelations
     }
     public function doctor()  { 
         return $this->belongsTo(Doctor::class, 'doctor_id'); 
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(AppointmentDocument::class);
     }
 }
