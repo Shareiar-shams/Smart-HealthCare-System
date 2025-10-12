@@ -116,8 +116,8 @@
                                         <i class="fas fa-spinner fa-spin"></i> Loading available slots...
                                     </div>
                                 </div>
-                                <input type="hidden" name="time_slot" id="selected_time_slot" 
-                                    value="{{ json_encode(['start' => $appointment->time_start, 'end' => $appointment->time_end]) }}">
+                                <input type="hidden" name="time_slot" id="selected_time_slot"
+                                    value="{{ json_encode(['start' => $appointment->start_at ? $appointment->start_at->format('H:i') : '', 'end' => $appointment->end_at ? $appointment->end_at->format('H:i') : '']) }}">
                             </div>
 
                             <!-- Reason for Visit -->
@@ -194,17 +194,14 @@
                                                                         {{ ucfirst($document->type) }}
                                                                     </span>
                                                                 </div>
-                                                                <p class="mb-1 font-weight-bold small">{{ $document->file_name }}</p>
+                                                                <img src="{{ $document->image_url }}" alt="{{ $document->file_name }}" class="img-thumbnail" style="max-width: 200px; max-height: 100px;">
                                                                 <small class="text-muted">Uploaded {{ $document->created_at->diffForHumans() }}</small>
                                                             </div>
                                                             <div class="dropdown">
-                                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                                                     <i class="fas fa-ellipsis-v"></i>
                                                                 </button>
                                                                 <ul class="dropdown-menu">
-                                                                    <li><a class="dropdown-item" href="{{ $document->file_url }}" target="_blank">
-                                                                        <i class="fas fa-eye me-1"></i> View
-                                                                    </a></li>
                                                                     <li><a class="dropdown-item text-danger" href="#" onclick="deleteDocument({{ $document->id }})">
                                                                         <i class="fas fa-trash me-1"></i> Delete
                                                                     </a></li>
@@ -270,6 +267,11 @@
                     slotsHtml = '<p class="text-muted">No available slots for selected date</p>';
                 }
                 $('#timeSlots').html(slotsHtml);
+
+                // Highlight the current time slot after slots are loaded
+                setTimeout(() => {
+                    highlightCurrentTimeSlot();
+                }, 100);
             });
         }
 
@@ -279,12 +281,33 @@
             $('#selected_time_slot').val(JSON.stringify({start, end}));
         }
 
+        function highlightCurrentTimeSlot() {
+            const currentSlot = JSON.parse($('#selected_time_slot').val() || '{}');
+
+            if (currentSlot.start && currentSlot.end) {
+                // Remove existing selections
+                $('.time-slot').removeClass('selected');
+
+                // Try to find and highlight the current slot
+                let currentSlotElement = $(`.time-slot[data-start="${currentSlot.start}"][data-end="${currentSlot.end}"]`);
+
+                if (currentSlotElement.length > 0) {
+                    currentSlotElement.addClass('selected');
+                    console.log('Current slot highlighted:', currentSlot.start, currentSlot.end);
+                } else {
+                    console.log('Current slot not found in available slots:', currentSlot.start, currentSlot.end);
+                    console.log('Available slots:', $('.time-slot').map((i, el) => $(el).data('start') + ' - ' + $(el).data('end')).get());
+                }
+            }
+        }
+
         function validateForm() {
             const isValid = $('#appointment_date').val() && 
-                        $('#selected_time_slot').val() &&
-                        $('textarea[name="reason"]').val();
-            
+                            $('#selected_time_slot').val() &&
+                            $('textarea[name="reason"]').val();
+
             $('#submitBtn').prop('disabled', !isValid);
+            return isValid;
         }
 
         $(document).ready(function() {
@@ -302,6 +325,11 @@
                     alert('Please fill in all required fields');
                 }
             });
+
+            // Ensure current time slot is properly highlighted after slots load
+            setTimeout(() => {
+                highlightCurrentTimeSlot();
+            }, 500);
         });
 
         // Document upload functionality
@@ -451,6 +479,8 @@
         }
 
         function deleteDocument(documentId) {
+            var url = "{{ route('administration.appointment.documents.destroy', ':id') }}";
+            url = url.replace(':id', documentId);
             Swal.fire({
                 title: 'Are you sure?',
                 text: "You won't be able to revert this deletion!",
@@ -463,7 +493,7 @@
                 if (result.isConfirmed) {
                     // Send delete request
                     $.ajax({
-                        url: '{{ route("administration.appointment.documents.destroy", "") }}/' + documentId,
+                        url: url,
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
