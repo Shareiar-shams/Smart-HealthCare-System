@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Administration\Appointment\AppointmentController;
+use App\Http\Controllers\Administration\Appointment\AppointmentDocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('/appointment')->controller(AppointmentController::class)
@@ -18,8 +19,16 @@ Route::prefix('/appointment')->controller(AppointmentController::class)
         Route::patch('/{id}/confirm', 'confirm')->name('confirm')->can('Appointment Update');
         Route::post('/{id}/reject', 'reject')->name('reject')->can('Appointment Update');
         Route::delete('/{appointment}/delete', 'destroy')->name('delete')->can('Appointment Delete');
+        
+
+        //create documents
+
+        Route::post('/{appointment}/documents', 'documentsStore')->name('documents.store');
+        Route::delete('/documents/{id}', 'documentsDestroy')->name('documents.destroy');
+    
     });
 Route::prefix('/api')->controller(AppointmentController::class)
     ->group(function () {
         Route::get('/doctor/{doctor}/time-slots', 'getTimeSlots')->name('getTimeSlots')->can('Appointment Create');
     });
+

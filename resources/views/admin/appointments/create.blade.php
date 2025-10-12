@@ -2,6 +2,9 @@
 @section('admin_title_content')
     {{config('app.name')}} || Create Appointment
 @endsection
+@section('admin_meta')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
 @section('admin_content_header')
     <div class="col-sm-6">
         <h1 class="m-0">{{__('Create Appointment')}}</h1>
@@ -48,6 +51,15 @@
             background-color: #f8f9fa;
             color: #adb5bd;
             cursor: not-allowed;
+        }
+        .border-dashed {
+            border-style: dashed !important;
+        }
+        .document-upload-item {
+            transition: all 0.3s ease;
+        }
+        .document-upload-item:hover {
+            background-color: #f8f9fa;
         }
     </style>
 @endsection
@@ -152,6 +164,49 @@
                             <div class="form-group mb-3">
                                 <label>Additional Notes (Optional)</label>
                                 <textarea class="form-control" name="notes" rows="2"></textarea>
+                            </div>
+
+                            <!-- Document Upload Section -->
+                            <div class="form-group mb-3">
+                                <label>Upload Documents (Optional)</label>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p class="text-muted small mb-3">
+                                            You can upload test reports, previous prescriptions, or doctor's suggestions to help your doctor understand your medical history better.
+                                        </p>
+
+                                        <!-- Document Upload Area -->
+                                        <div id="document-upload-area" class="border-dashed border-2 border-primary p-3 mb-3 text-center">
+                                            <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
+                                            <p class="mb-2">Drag & drop files here or click to browse</p>
+                                            <input type="file" id="document-files" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('document-files').click()">
+                                                <i class="fas fa-folder-open me-1"></i>Choose Files
+                                            </button>
+                                        </div>
+
+                                        <!-- Document Type Selection -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Document Type</label>
+                                            <select class="form-control" id="document-type">
+                                                <option value="report">Medical Report</option>
+                                                <option value="prescription">Previous Prescription</option>
+                                                <option value="suggestion">Doctor's Suggestion</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Upload Button -->
+                                        <button type="button" class="btn btn-success btn-sm w-100" id="upload-documents-btn" onclick="uploadDocuments()">
+                                            <i class="fas fa-upload me-2"></i>Upload Documents
+                                        </button>
+
+                                        <!-- Uploaded Documents List -->
+                                        <div id="uploaded-documents" class="mt-3">
+                                            <h6>Uploaded Documents:</h6>
+                                            <ul class="list-group" id="documents-list"></ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100" id="submitBtn" disabled>
@@ -265,7 +320,7 @@
             // Form submission
             $('#appointmentForm').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 if (!validateForm()) {
                     Swal.fire({
                         icon: 'error',
@@ -284,5 +339,151 @@
                 this.submit();
             });
         });
+
+        // Document upload functionality
+        let selectedFiles = [];
+
+        // Handle file selection
+        $('#document-files').on('change', function() {
+            handleFileSelection(this.files);
+        });
+
+        // Drag and drop functionality
+        $('#document-upload-area').on('dragover dragenter', function(e) {
+            e.preventDefault();
+            $(this).addClass('border-success bg-light');
+        });
+
+        $('#document-upload-area').on('dragleave dragend', function(e) {
+            e.preventDefault();
+            $(this).removeClass('border-success bg-light');
+        });
+
+        $('#document-upload-area').on('drop', function(e) {
+            e.preventDefault();
+            $(this).removeClass('border-success bg-light');
+
+            const files = e.originalEvent.dataTransfer.files;
+            $('#document-files')[0].files = files;
+            handleFileSelection(files);
+        });
+
+        function handleFileSelection(files) {
+            selectedFiles = Array.from(files);
+            updateFilePreview();
+        }
+
+        function updateFilePreview() {
+            const container = $('#documents-list');
+            container.empty();
+
+            if (selectedFiles.length === 0) {
+                $('#uploaded-documents').hide();
+                return;
+            }
+
+            $('#uploaded-documents').show();
+
+            selectedFiles.forEach((file, index) => {
+                const fileItem = `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-file-${getFileIcon(file.type)} me-2"></i>
+                            <strong>${file.name}</strong>
+                            <br>
+                            <small class="text-muted">${formatFileSize(file.size)}</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </li>
+                `;
+                container.append(fileItem);
+            });
+        }
+
+        function getFileIcon(mimeType) {
+            if (mimeType.includes('pdf')) return 'pdf';
+            if (mimeType.includes('image')) return 'image';
+            return 'alt';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+
+        function uploadDocuments() {
+            if (selectedFiles.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Files Selected',
+                    text: 'Please select files to upload first.'
+                });
+                return;
+            }
+
+            const documentType = $('#document-type').val();
+            const uploadBtn = $('#upload-documents-btn');
+            const originalText = uploadBtn.html();
+
+            // Show loading state
+            uploadBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Uploading...').prop('disabled', true);
+
+            // Create FormData for file upload
+            const formData = new FormData();
+            selectedFiles.forEach((file, index) => {
+                formData.append(`files[${index}]`, file);
+            });
+            formData.append('type', documentType);
+
+            // Upload files
+            $.ajax({
+                url: '{{ route("administration.appointment.documents.store", "__APPOINTMENT_ID__") }}'.replace('__APPOINTMENT_ID__', 'temp'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Upload Successful',
+                        text: `${selectedFiles.length} document(s) uploaded successfully!`
+                    });
+
+                    // Clear selected files
+                    selectedFiles = [];
+                    $('#document-files').val('');
+                    updateFilePreview();
+
+                    // Reload page to show uploaded documents
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Failed',
+                        text: 'Failed to upload documents. Please try again.'
+                    });
+                },
+                complete: function() {
+                    // Restore button state
+                    uploadBtn.html(originalText).prop('disabled', false);
+                }
+            });
+        }
     </script>
 @endsection

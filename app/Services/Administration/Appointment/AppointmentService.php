@@ -7,12 +7,25 @@ use App\Models\Appointment\Appointment;
 use App\Models\Doctor\Doctor;
 use App\Models\User;
 use App\Notifications\AppointmentNotification;
+use App\Services\ImageService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 
 class AppointmentService
 {
+    protected $imageService;
+
+    public function __construct(ImageService $imageService)
+    {
+        $this->imageService = $imageService;
+    }
+
+    public function getImageService()
+    {
+        return $this->imageService;
+    }
+    
     public function getAppointmentsData(){
         $user = Auth::user();
 

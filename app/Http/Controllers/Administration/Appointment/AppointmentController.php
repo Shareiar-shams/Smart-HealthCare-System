@@ -7,12 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Appoinment\StoreAppointmentRequest;
 use App\Http\Requests\Administration\Appoinment\UpdateAppointmentRequest;
 use App\Models\Appointment\Appointment;
+use App\Models\AppointmentDocument\AppointmentDocument;
 use App\Models\Doctor\Doctor;
 use App\Services\Administration\Appointment\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 
 class AppointmentController extends Controller
@@ -94,6 +96,35 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * Store newly created documents in storage.
+     */
+    public function documentsStore(Request $request, Appointment $appointment)
+    {
+        $request->validate([
+            'type' => 'required|in:prescription,report,suggestion',
+            'files' => 'required|array',
+            'files.*' => 'file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max per file
+        ]);
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $imageStore = $this->appointmentService->getImageService()->storeSingleImage($file, 'appointment_documents', null, null, null);
+
+                $appointment->documents()->create([
+                    'type' => $request->type,
+                    'file_path' => $imageStore,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Documents uploaded successfully!'
+        ]);
+    }
+
     // Show doctor detail and booking form
     public function show(Appointment $appointment)
     {
@@ -146,6 +177,15 @@ class AppointmentController extends Controller
                 'alert-type' => 'error'
             ]);
         }
+    }
+
+    public function documentsDestroy($id)
+    {
+        $document = AppointmentDocument::findOrFail($id);
+        Storage::disk('public')->delete($document->file_path);
+        $document->delete();
+
+        return back()->with('success', 'Document deleted successfully!');
     }
 
     // Show current user's appointments

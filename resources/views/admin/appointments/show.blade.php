@@ -2,6 +2,9 @@
 @section('admin_title_content')
     {{config('app.name')}} || Appointment Details
 @endsection
+@section('admin_meta')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+@endsection
 @section('admin_content_header')
     <div class="col-sm-6">
         <h1 class="m-0">{{__('Appointment Details')}}</h1>
@@ -129,6 +132,73 @@
                     </div>
                     @endif
 
+                    <!-- Documents Section -->
+                    @if($appointment->documents->count() > 0)
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-file-medical me-2"></i>
+                                Uploaded Documents ({{ $appointment->documents->count() }})
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                @foreach($appointment->documents as $document)
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-info">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="fas fa-file-{{ $document->type === 'prescription' ? 'prescription' : ($document->type === 'report' ? 'medical' : 'file-alt') }} me-2 text-info"></i>
+                                                        <span class="badge bg-{{ $document->type === 'prescription' ? 'primary' : ($document->type === 'report' ? 'info' : 'secondary') }}">
+                                                            {{ ucfirst($document->type) }}
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="mb-1">{{ $document->file_name }}</h6>
+                                                    <small class="text-muted">
+                                                        Uploaded {{ $document->created_at->format('M d, Y \a\t h:i A') }}
+                                                        @if($document->updated_at != $document->created_at)
+                                                        <br>Updated {{ $document->updated_at->diffForHumans() }}
+                                                        @endif
+                                                    </small>
+                                                </div>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="{{ $document->file_url }}" target="_blank">
+                                                            <i class="fas fa-eye me-1"></i> View Document
+                                                        </a></li>
+                                                        <li><a class="dropdown-item" href="{{ $document->file_url }}" download>
+                                                            <i class="fas fa-download me-1"></i> Download
+                                                        </a></li>
+                                                        @can('Appointment Update')
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteDocument({{ $document->id }})">
+                                                            <i class="fas fa-trash me-1"></i> Delete
+                                                        </a></li>
+                                                        @endcan
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <!-- Image Preview for Image Files -->
+                                            @if(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                            <div class="mt-2">
+                                                <img src="{{ $document->file_url }}" alt="{{ $document->file_name }}" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Actions -->
                     <div class="card">
                         <div class="card-body">
@@ -195,6 +265,58 @@ function confirmCancellation() {
     }).then((result) => {
         if (result.isConfirmed) {
             document.getElementById('cancellation-form').submit();
+        }
+    });
+}
+
+function deleteDocument(documentId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this deletion!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Send delete request
+            fetch('{{ route("administration.appointment.documents.destroy", "") }}/' + documentId, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Document has been deleted successfully.'
+                    });
+
+                    // Reload page to update the list
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: 'Failed to delete document. Please try again.'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Failed',
+                    text: 'Failed to delete document. Please try again.'
+                });
+            });
         }
     });
 }
