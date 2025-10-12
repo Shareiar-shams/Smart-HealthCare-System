@@ -1,6 +1,6 @@
 @extends('layouts.administration.app')
 @section('admin_title_content')
-    {{config(app.name)}} || Permissions
+    {{config('app.name')}} || Permissions
 @endsection
 @section('admin_content_header')
     <div class="col-sm-6">
