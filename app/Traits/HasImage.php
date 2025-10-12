@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Services\Admin\ImageService;
+use App\Services\ImageService as ServicesImageService;
 
 trait HasImage
 {
@@ -13,7 +13,7 @@ trait HasImage
         }
 
         $folder = strtolower(class_basename($this)); 
-        return app(ImageService::class)->getImageUrl($folder.'s', $this->image, $type);
+        return app(ServicesImageService::class)->getImageUrl($folder.'s', $this->image, $type);
     }
 
     // Dynamic accessors
