@@ -75,6 +75,102 @@
             </div>
         @endif
 
+        <!-- Documents Section -->
+        @if($appointment->documents->count() > 0)
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-medical me-2"></i>
+                    Uploaded Documents ({{ $appointment->documents->count() }})
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach($appointment->documents as $document)
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-info">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-file-{{ $document->type === 'prescription' ? 'prescription' : ($document->type === 'report' ? 'medical' : 'file-alt') }} me-2 text-info"></i>
+                                            <span class="badge bg-{{ $document->type === 'prescription' ? 'primary' : ($document->type === 'report' ? 'info' : 'secondary') }}">
+                                                {{ ucfirst($document->type) }}
+                                            </span>
+                                        </div>
+                                        <h6 class="mb-1">{{ $document->file_name }}</h6>
+                                        <small class="text-muted">
+                                            Uploaded {{ $document->created_at->format('M d, Y \a\t h:i A') }}
+                                            @if($document->updated_at != $document->created_at)
+                                            <br>Updated {{ $document->updated_at->diffForHumans() }}
+                                            @endif
+                                        </small>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-info dropdown-toggle" type="button" data-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            
+                                            <li>
+                                                <a class="dropdown-item text-primary" 
+                                                href="{{ asset('storage/appointment_documents/' . $document->file_path) }}" 
+                                                target="_blank">
+                                                <i class="fas fa-eye me-1"></i> View
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                @if(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
+                                    <!-- Image Preview -->
+                                    <div class="mt-2">
+                                        <img src="{{ $document->image_url }}" 
+                                            alt="{{ $document->file_name }}" 
+                                            class="img-thumbnail" 
+                                            style="max-width: 200px; max-height: 150px;">
+                                    </div>
+
+                                @elseif(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['pdf']))
+                                    <!-- PDF Preview -->
+                                    <div class="mt-2">
+                                        <a href="{{ route('appointments.documents.view', $document->id) }}" 
+                                        target="_blank" 
+                                        class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-file-pdf me-1"></i> View PDF
+                                        </a>
+                                    </div>
+
+                                @elseif(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['doc', 'docx']))
+                                    <!-- Word Document -->
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                        target="_blank" 
+                                        class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-file-word me-1"></i> View Word File
+                                        </a>
+                                    </div>
+
+                                @else
+                                    <!-- Other File Types -->
+                                    <div class="mt-2">
+                                        <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                        target="_blank" 
+                                        class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-file me-1"></i> View File
+                                        </a>
+                                    </div>
+                                @endif
+
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
         <div class="mt-3 border-top pt-3">
             @if(auth()->user()->hasRole('Patient'))
                 @if($appointment->status === 'pending')

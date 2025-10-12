@@ -177,11 +177,44 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Image Preview for Image Files -->
                                             @if(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                            <div class="mt-2">
-                                                <img src="{{ $document->image_url }}" alt="{{ $document->file_name }}" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
-                                            </div>
+                                                <!-- Image Preview -->
+                                                <div class="mt-2">
+                                                    <img src="{{ $document->image_url }}" 
+                                                        alt="{{ $document->file_name }}" 
+                                                        class="img-thumbnail" 
+                                                        style="max-width: 200px; max-height: 150px;">
+                                                </div>
+
+                                            @elseif(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['pdf']))
+                                                <!-- PDF Preview -->
+                                                <div class="mt-2">
+                                                    <a href="{{ route('appointments.documents.view', $document->id) }}" 
+                                                    target="_blank" 
+                                                    class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-file-pdf me-1"></i> View PDF
+                                                    </a>
+                                                </div>
+
+                                            @elseif(in_array(pathinfo($document->file_path, PATHINFO_EXTENSION), ['doc', 'docx']))
+                                                <!-- Word Document -->
+                                                <div class="mt-2">
+                                                    <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                                    target="_blank" 
+                                                    class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-file-word me-1"></i> View Word File
+                                                    </a>
+                                                </div>
+
+                                            @else
+                                                <!-- Other File Types -->
+                                                <div class="mt-2">
+                                                    <a href="{{ asset('storage/' . $document->file_path) }}" 
+                                                    target="_blank" 
+                                                    class="btn btn-outline-secondary btn-sm">
+                                                    <i class="fas fa-file me-1"></i> View File
+                                                    </a>
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
