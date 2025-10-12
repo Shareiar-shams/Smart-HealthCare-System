@@ -52,10 +52,24 @@
                                     <i class="fas fa-calendar-check me-2"></i>
                                     Appointment Details
                                 </h5>
-                                <p class="mb-2"><strong>Patient:</strong> {{ $appointment->patient->name }}</p>
-                                <p class="mb-2"><strong>Date:</strong> {{ $appointment->appointment_date ? \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') : \Carbon\Carbon::parse($appointment->start_at)->format('M d, Y') }}</p>
-                                <p class="mb-2"><strong>Time:</strong> {{ \Carbon\Carbon::parse($appointment->start_at)->format('h:i A') }} - {{ \Carbon\Carbon::parse($appointment->end_at)->format('h:i A') }}</p>
-                                @if($appointment->reason)
+                                @if($appointment && $appointment->patient)
+                                    <p class="mb-2"><strong>Patient:</strong> {{ $appointment->patient->name ?? 'N/A' }}</p>
+                                @else
+                                    <p class="mb-2 text-muted">Patient information not available</p>
+                                @endif
+                                <p class="mb-2"><strong>Date:</strong>
+                                    @if($appointment && $appointment->appointment_date)
+                                        {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}
+                                    @elseif($appointment && $appointment->start_at)
+                                        {{ \Carbon\Carbon::parse($appointment->start_at)->format('M d, Y') }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </p>
+                                @if($appointment && $appointment->start_at && $appointment->end_at)
+                                    <p class="mb-2"><strong>Time:</strong> {{ \Carbon\Carbon::parse($appointment->start_at)->format('h:i A') }} - {{ \Carbon\Carbon::parse($appointment->end_at)->format('h:i A') }}</p>
+                                @endif
+                                @if($appointment && $appointment->reason)
                                     <p class="mb-0"><strong>Reason:</strong> {{ $appointment->reason }}</p>
                                 @endif
                             </div>
@@ -64,15 +78,19 @@
                                     <i class="fas fa-user-md me-2"></i>
                                     Patient Information
                                 </h5>
-                                <p class="mb-2"><strong>Phone:</strong> {{ $appointment->patient->profile->contact_no ?? 'N/A' }}</p>
-                                <p class="mb-2"><strong>Email:</strong> {{ $appointment->patient->email }}</p>
-                                @if($appointment->patient->profile->date_of_birth)
-                                    <p class="mb-2"><strong>Age:</strong>
-                                        {{ \Carbon\Carbon::parse($appointment->patient->profile->date_of_birth)->age }} years
-                                    </p>
-                                @endif
-                                @if($appointment->patient->profile->blood_group)
-                                    <p class="mb-0"><strong>Blood Group:</strong> {{ $appointment->patient->profile->blood_group }}</p>
+                                @if($appointment && $appointment->patient)
+                                    <p class="mb-2"><strong>Phone:</strong> {{ $appointment->patient->profile->contact_no ?? 'N/A' }}</p>
+                                    <p class="mb-2"><strong>Email:</strong> {{ $appointment->patient->email ?? 'N/A' }}</p>
+                                    @if($appointment->patient->profile && $appointment->patient->profile->date_of_birth)
+                                        <p class="mb-2"><strong>Age:</strong>
+                                            {{ \Carbon\Carbon::parse($appointment->patient->profile->date_of_birth)->age }} years
+                                        </p>
+                                    @endif
+                                    @if($appointment->patient->profile && $appointment->patient->profile->blood_group)
+                                        <p class="mb-0"><strong>Blood Group:</strong> {{ $appointment->patient->profile->blood_group }}</p>
+                                    @endif
+                                @else
+                                    <p class="mb-2 text-muted">Patient information not available</p>
                                 @endif
                             </div>
                         </div>
@@ -121,19 +139,19 @@
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <label class="form-label">Medicine Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="medicines[0][name]" placeholder="Medicine name" required>
+                                                <input type="text" class="form-control" name="items[0][medicine_name]" placeholder="Medicine name" required>
                                             </div>
                                             <div class="col-md-2">
                                                 <label class="form-label">Dosage <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="medicines[0][dosage]" placeholder="e.g., 500mg" required>
+                                                <input type="text" class="form-control" name="items[0][dosage]" placeholder="e.g., 500mg" required>
                                             </div>
                                             <div class="col-md-2">
                                                 <label class="form-label">Duration <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="medicines[0][duration]" placeholder="e.g., 7 days" required>
+                                                <input type="text" class="form-control" name="items[0][duration]" placeholder="e.g., 7 days" required>
                                             </div>
                                             <div class="col-md-3">
                                                 <label class="form-label">Frequency <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" name="medicines[0][frequency]" placeholder="e.g., Twice daily" required>
+                                                <input type="text" class="form-control" name="items[0][frequency]" placeholder="e.g., Twice daily" required>
                                             </div>
                                             <div class="col-md-2">
                                                 <label class="form-label">&nbsp;</label>
@@ -144,7 +162,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                @error('medicines')
+                                @error('items')
                                     <div class="text-danger mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -231,19 +249,19 @@
             <div class="row">
                 <div class="col-md-3">
                     <label class="form-label">Medicine Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="medicines[{{ medicineIndex }}][name]" placeholder="Medicine name" required>
+                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][medicine_name]" placeholder="Medicine name" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Dosage <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="medicines[{{ medicineIndex }}][dosage]" placeholder="e.g., 500mg" required>
+                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][dosage]" placeholder="e.g., 500mg" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Duration <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="medicines[{{ medicineIndex }}][duration]" placeholder="e.g., 7 days" required>
+                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][duration]" placeholder="e.g., 7 days" required>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Frequency <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="medicines[{{ medicineIndex }}][frequency]" placeholder="e.g., Twice daily" required>
+                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][frequency]" placeholder="e.g., Twice daily" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>
@@ -281,7 +299,7 @@ $(document).ready(function() {
             return false;
         }
 
-        const medicines = $('input[name*="[name]"]:visible');
+        const medicines = $('input[name*="[medicine_name]"]:visible');
         if (medicines.length === 0 || !medicines.filter(function() { return $(this).val().trim(); }).length) {
             alert('Please add at least one medicine.');
             e.preventDefault();
@@ -291,7 +309,7 @@ $(document).ready(function() {
 });
 
 function addMedicineRow() {
-    const template = $('#medicineTemplate').html().replace(/{{ medicineIndex }}/g, medicineIndex);
+    const template = $('#medicineTemplate').html().replace(/\{\{medicineIndex\}\}/g, medicineIndex);
     $('#medicinesContainer').append(template);
     medicineIndex++;
     updateRemoveButtons();
@@ -302,7 +320,7 @@ function updateMedicineIndices() {
         $(this).find('input').each(function() {
             const name = $(this).attr('name');
             if (name) {
-                const newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                const newName = name.replace(/items\[\d+\]/, 'items[' + index + ']');
                 $(this).attr('name', newName);
             }
         });
@@ -322,7 +340,7 @@ function updateRemoveButtons() {
 function addCommonMedicine(name, dosage, duration, frequency) {
     addMedicineRow();
     const lastMedicine = $('.medicine-item:last');
-    lastMedicine.find('input[name*="[name]"]').val(name);
+    lastMedicine.find('input[name*="[medicine_name]"]').val(name);
     lastMedicine.find('input[name*="[dosage]"]').val(dosage);
     lastMedicine.find('input[name*="[duration]"]').val(duration);
     lastMedicine.find('input[name*="[frequency]"]').val(frequency);

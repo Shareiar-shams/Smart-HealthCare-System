@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class PrescriptionService
 {
     public function getAllPrescriptions(){
-        return Prescription::with('doctor', 'patient')->latest();
+        return Prescription::with(['doctor.user', 'patient.profile', 'items'])->latest()->paginate(12);
     }
     public function getAppointmentWithPatients($appointmentId){
         return Appointment::with('patient')->findOrFail($appointmentId);
@@ -24,14 +24,22 @@ class PrescriptionService
 
         $prescription = Prescription::create([
             'appointment_id' => $appointment->id,
-            'doctor_id' => Auth::user()->dector->id,
+            'doctor_id' => Auth::user()->doctor->id,
             'patient_id' => $appointment->patient_id,
             'diagnosis' => $request->diagnosis,
             'instructions' => $request->instructions,
+            'notes' => $request->notes,
         ]);
 
-        foreach ($request->items as $item) {
-            $prescription->items()->create($item);
+        if ($request->has('items')) {
+            foreach ($request->items as $item) {
+                $prescription->items()->create([
+                    'medicine_name' => $item['medicine_name'],
+                    'dosage' => $item['dosage'],
+                    'duration' => $item['duration'],
+                    'frequency' => $item['frequency']
+                ]);
+            }
         }
         return $prescription;
     }

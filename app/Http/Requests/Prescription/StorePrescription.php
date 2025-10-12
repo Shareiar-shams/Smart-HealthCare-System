@@ -23,9 +23,14 @@ class StorePrescription extends FormRequest
     {
         return [
             'appointment_id' => 'required|exists:appointments,id',
-            'diagnosis' => 'required',
+            'diagnosis' => 'required|string',
             'instructions' => 'nullable|string',
-            'items.*.medicine_name' => 'required|string'
+            'notes' => 'nullable|string',
+            'items' => 'required|array|min:1',
+            'items.*.medicine_name' => 'required|string|max:255',
+            'items.*.dosage' => 'required|string|max:100',
+            'items.*.duration' => 'required|string|max:100',
+            'items.*.frequency' => 'required|string|max:255'
         ];
     }
 }

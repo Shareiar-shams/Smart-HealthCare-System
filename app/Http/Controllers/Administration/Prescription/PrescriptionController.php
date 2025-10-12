@@ -32,7 +32,7 @@ class PrescriptionController extends Controller
     public function create($appointmentId)
     {
         $appointment = $this->prescriptionService->getAppointmentWithPatients($appointmentId);
-        return view('doctor.prescriptions.create', compact('appointment'));
+        return view('admin.prescriptions.doctor.create', compact('appointment'));
     }
 
     /**
@@ -46,7 +46,7 @@ class PrescriptionController extends Controller
                 'message' => 'Prescription created successfully!',
                 'alert-type' => 'success'
             );
-            return redirect()->back()->with($notofication);
+            return redirect()->route('administration.appointment.myPatientsAppointments')->with($notofication);
         } catch (Exception $e) {
             $notofication = array(
                 'message' => 'Something went wrong! ' . $e->getMessage(),
@@ -65,7 +65,7 @@ class PrescriptionController extends Controller
     {
         $prescription = $this->prescriptionService->getPrescriptionData($id);
 
-        return view('patient.prescriptions.show', compact('prescription'));
+        return view('admin.prescriptions.patient.show', compact('prescription'));
     }
 
     public function downloadPdf($appointmentId)
