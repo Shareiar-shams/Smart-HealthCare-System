@@ -27,6 +27,10 @@ class StoreAppointmentRequest extends FormRequest
             'time_slot' => 'required|json',
             'reason' => 'required|string|min:10|max:500',
             'notes' => 'nullable|string|max:500',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
+            'document_types' => 'nullable|array',
+            'document_types.*' => 'string|in:report,prescription,suggestion',
         ];
     }
 

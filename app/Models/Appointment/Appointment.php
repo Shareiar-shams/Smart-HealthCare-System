@@ -26,7 +26,12 @@ class Appointment extends Model
     // Scopes
     use AppointmentScopes;
 
-    protected $casts = [];
+    protected $casts = [
+        'start_at' => 'datetime',
+        'end_at' => 'datetime',
+        'appointment_date' => 'date',
+        'canceled_at' => 'datetime',
+    ];
 
     protected $fillable = [
         'patient_id','doctor_id','appointment_date','start_at','end_at','duration','status','reason','notes','canceled_by','canceled_at'

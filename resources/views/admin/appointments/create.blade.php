@@ -61,12 +61,59 @@
         .document-upload-item:hover {
             background-color: #f8f9fa;
         }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive fixes */
+        @media (max-width: 768px) {
+            .doctor-card {
+                margin-bottom: 1rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .document-upload-area {
+                padding: 1rem !important;
+            }
+
+            .list-group-item {
+                padding: 0.75rem;
+            }
+
+            #submitBtn {
+                font-size: 1rem;
+                padding: 0.75rem 1.5rem;
+            }
+        }
+
+        /* Submit button styling */
+        #submitBtn:disabled {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        #submitBtn:not(:disabled) {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+            cursor: pointer;
+        }
+
     </style>
 @endsection
 
 @section('main_content')
     <div class="container-fluid">
-        <form action="{{ route('administration.appointment.store') }}" method="POST" id="appointmentForm">
+        <form action="{{ route('administration.appointment.store') }}" method="POST" id="appointmentForm" enctype="multipart/form-data">
             @csrf
             <div class="row">
                 <!-- Doctor Selection -->
@@ -135,7 +182,16 @@
                         </div>
                         <div class="card-body">
                             <input type="hidden" name="doctor_id" id="selected_doctor_id">
-                            
+                            <!-- Selected Doctor Info -->
+                            <div id="selected-doctor-info" class="alert alert-info d-none mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-md fa-2x me-3 text-primary"></i>
+                                    <div>
+                                        <strong>Selected Doctor:</strong> <span id="selected-doctor-name" class="fw-bold"></span><br>
+                                        <small id="selected-doctor-specialty" class="text-muted"></small>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- Date Selection -->
                             <div class="form-group mb-3">
                                 <label>Select Date</label>
@@ -179,31 +235,26 @@
                                         <div id="document-upload-area" class="border-dashed border-2 border-primary p-3 mb-3 text-center">
                                             <i class="fas fa-cloud-upload-alt fa-2x text-primary mb-2"></i>
                                             <p class="mb-2">Drag & drop files here or click to browse</p>
-                                            <input type="file" id="document-files" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+                                            <input type="file" id="document-files" name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
                                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('document-files').click()">
                                                 <i class="fas fa-folder-open me-1"></i>Choose Files
                                             </button>
                                         </div>
 
-                                        <!-- Document Type Selection -->
+                                        <!-- Document Type Selection for each file -->
                                         <div class="mb-3">
-                                            <label class="form-label">Document Type</label>
-                                            <select class="form-control" id="document-type">
-                                                <option value="report">Medical Report</option>
-                                                <option value="prescription">Previous Prescription</option>
-                                                <option value="suggestion">Doctor's Suggestion</option>
-                                            </select>
+                                            <label class="form-label">Document Types</label>
+                                            <div id="document-types-container">
+                                                <!-- Document type selects will be added here dynamically -->
+                                            </div>
                                         </div>
 
-                                        <!-- Upload Button -->
-                                        <button type="button" class="btn btn-success btn-sm w-100" id="upload-documents-btn" onclick="uploadDocuments()">
-                                            <i class="fas fa-upload me-2"></i>Upload Documents
-                                        </button>
-
                                         <!-- Uploaded Documents List -->
-                                        <div id="uploaded-documents" class="mt-3">
-                                            <h6>Uploaded Documents:</h6>
-                                            <ul class="list-group" id="documents-list"></ul>
+                                        <div id="uploaded-documents" class="mt-3" style="display: none;">
+                                            <h6>Selected Documents:</h6>
+                                            <div class="table-responsive">
+                                                <ul class="list-group" id="documents-list"></ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -229,9 +280,25 @@
 
         function selectDoctor(doctorId) {
             selectedDoctor = doctorId;
+
+            // Highlight selected card
             $('.doctor-card').removeClass('selected');
             $(`.doctor-card[onclick="selectDoctor(${doctorId})"]`).addClass('selected');
+
+            // Get doctor details from the clicked card
+            const doctorCard = $(`.doctor-card[onclick="selectDoctor(${doctorId})"]`).closest('.doctor-item');
+            const doctorName = doctorCard.data('name');
+            const doctorSpecialty = doctorCard.data('specialty');
+
+            // Show selected doctor info section
+            $('#selected-doctor-name').text('Dr. ' + doctorName);
+            $('#selected-doctor-specialty').text(doctorSpecialty);
+            $('#selected-doctor-info').removeClass('d-none').addClass('fade-in');
+
+            // Set hidden field value
             $('#selected_doctor_id').val(doctorId);
+
+            // Reload available slots
             loadTimeSlots();
             validateForm();
         }
@@ -270,28 +337,12 @@
             validateForm();
         }
 
-        function validateForm() {
-            const doctorId = $('#selected_doctor_id').val();
-            const date = $('#appointment_date').val();
-            const timeSlot = $('#selected_time_slot').val();
-            const reason = $('textarea[name="reason"]').val();
-
-            // console.log('Validation Check:', {
-            //     doctorId: doctorId,
-            //     date: date,
-            //     timeSlot: timeSlot,
-            //     reason: reason
-            // });
-
-            const isValid = doctorId && date && timeSlot && reason && reason.trim() !== '';
-            
-            $('#submitBtn').prop('disabled', !isValid);
-            return isValid;
-        }
 
         $(document).ready(function() {
             // Initial form validation
-            validateForm();
+            setTimeout(() => {
+                validateForm();
+            }, 100);
 
             // Doctor search
             $('#doctorSearch').on('input', function() {
@@ -314,7 +365,8 @@
                 });
             });
 
-            // Form validation
+            // Form validation on input changes
+            $('#appointment_date').on('change', validateForm);
             $('textarea[name="reason"]').on('input', validateForm);
 
             // Form submission
@@ -342,6 +394,7 @@
 
         // Document upload functionality
         let selectedFiles = [];
+        let documentTypes = [];
 
         // Handle file selection
         $('#document-files').on('change', function() {
@@ -370,7 +423,9 @@
 
         function handleFileSelection(files) {
             selectedFiles = Array.from(files);
+            documentTypes = selectedFiles.map(() => 'report'); // Default type for each file
             updateFilePreview();
+            updateDocumentTypeSelects();
         }
 
         function updateFilePreview() {
@@ -386,20 +441,38 @@
 
             selectedFiles.forEach((file, index) => {
                 const fileItem = `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fas fa-file-${getFileIcon(file.type)} me-2"></i>
-                            <strong>${file.name}</strong>
-                            <br>
-                            <small class="text-muted">${formatFileSize(file.size)}</small>
+                    <li class="list-group-item d-flex flex-column flex-md-row align-items-start align-items-md-center">
+                        <div class="flex-grow-1 w-100 mb-2 mb-md-0">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-file-${getFileIcon(file.type)} me-2"></i>
+                                <strong class="text-break">${file.name}</strong>
+                            </div>
+                            <div class="ms-4 mb-2">
+                                <select class="form-select form-select-sm document-type-select" data-index="${index}">
+                                    <option value="report" ${documentTypes[index] === 'report' ? 'selected' : ''}>Medical Report</option>
+                                    <option value="prescription" ${documentTypes[index] === 'prescription' ? 'selected' : ''}>Previous Prescription</option>
+                                    <option value="suggestion" ${documentTypes[index] === 'suggestion' ? 'selected' : ''}>Doctor's Suggestion</option>
+                                </select>
+                            </div>
+                            <small class="text-muted d-block">${formatFileSize(file.size)}</small>
                         </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
-                            <i class="fas fa-times"></i>
+                        <button type="button" class="btn btn-sm btn-outline-danger align-self-end" onclick="removeFile(${index})">
+                            <i class="fas fa-times"></i> Remove
                         </button>
                     </li>
                 `;
                 container.append(fileItem);
             });
+
+            // Update document types when selects change
+            $('.document-type-select').on('change', function() {
+                const index = $(this).data('index');
+                documentTypes[index] = $(this).val();
+            });
+        }
+
+        function updateDocumentTypeSelects() {
+            // This function is now handled in updateFilePreview
         }
 
         function getFileIcon(mimeType) {
@@ -418,72 +491,93 @@
 
         function removeFile(index) {
             selectedFiles.splice(index, 1);
+            documentTypes.splice(index, 1);
             updateFilePreview();
         }
 
-        function uploadDocuments() {
-            if (selectedFiles.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No Files Selected',
-                    text: 'Please select files to upload first.'
+        // Update form validation to include file validation
+        function validateForm() {
+            const doctorId = $('#selected_doctor_id').val();
+            const date = $('#appointment_date').val();
+            const timeSlot = $('#selected_time_slot').val();
+            const reason = $('textarea[name="reason"]').val();
+
+            console.log('=== FORM VALIDATION DEBUG ===');
+            console.log('Doctor ID:', doctorId);
+            console.log('Date:', date);
+            console.log('Time Slot:', timeSlot);
+            console.log('Reason:', reason ? reason.substring(0, 50) + '...' : 'empty');
+            console.log('Selected Files Count:', selectedFiles.length);
+
+            // Check file sizes only if files are selected (documents are optional)
+            let fileSizeValid = true;
+            if (selectedFiles.length > 0) {
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                console.log('Checking file sizes...');
+                selectedFiles.forEach((file, index) => {
+                    console.log(`File ${index}: ${file.name} - ${file.size} bytes`);
+                    if (file.size > maxSize) {
+                        console.log(`File ${index} exceeds limit!`);
+                        fileSizeValid = false;
+                    }
                 });
-                return;
             }
 
-            const documentType = $('#document-type').val();
-            const uploadBtn = $('#upload-documents-btn');
-            const originalText = uploadBtn.html();
+            // Basic validation (required fields)
+            const basicValid = doctorId && date && timeSlot && reason && reason.trim() !== '';
+            console.log('Basic validation (required fields):', basicValid);
+            console.log('File size validation:', fileSizeValid);
 
-            // Show loading state
-            uploadBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>Uploading...').prop('disabled', true);
+            // Overall validation
+            const isValid = basicValid && fileSizeValid;
+            console.log('Overall validation result:', isValid);
 
-            // Create FormData for file upload
-            const formData = new FormData();
-            selectedFiles.forEach((file, index) => {
-                formData.append(`files[${index}]`, file);
-            });
-            formData.append('type', documentType);
+            // Update button state
+            $('#submitBtn').prop('disabled', !isValid);
 
-            // Upload files
-            $.ajax({
-                url: '{{ route("administration.appointment.documents.store", "__APPOINTMENT_ID__") }}'.replace('__APPOINTMENT_ID__', 'temp'),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Upload Successful',
-                        text: `${selectedFiles.length} document(s) uploaded successfully!`
-                    });
+            if (isValid) {
+                $('#submitBtn').removeClass('btn-secondary').addClass('btn-primary');
+                console.log('✅ Submit button ENABLED');
+            } else {
+                $('#submitBtn').removeClass('btn-primary').addClass('btn-secondary');
+                console.log('❌ Submit button DISABLED');
+            }
 
-                    // Clear selected files
-                    selectedFiles = [];
-                    $('#document-files').val('');
-                    updateFilePreview();
-
-                    // Reload page to show uploaded documents
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Upload Failed',
-                        text: 'Failed to upload documents. Please try again.'
-                    });
-                },
-                complete: function() {
-                    // Restore button state
-                    uploadBtn.html(originalText).prop('disabled', false);
-                }
-            });
+            return isValid;
         }
+
+        // Update form submission to handle files
+        $('#appointmentForm').on('submit', function(e) {
+            e.preventDefault();
+
+            if (!validateForm()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required Fields Missing',
+                    text: 'Please fill in all required fields:' +
+                        (!$('#selected_doctor_id').val() ? '\n- Select a doctor' : '') +
+                        (!$('#appointment_date').val() ? '\n- Select a date' : '') +
+                        (!$('#selected_time_slot').val() ? '\n- Select a time slot' : '') +
+                        (!$('textarea[name="reason"]').val() ? '\n- Enter reason for visit' : '') +
+                        (selectedFiles.length > 0 && selectedFiles.some(f => f.size > 5 * 1024 * 1024) ? '\n- Some files exceed 5MB limit' : ''),
+                    confirmButtonText: 'OK'
+                });
+                return false;
+            }
+
+            // Add document types to form data
+            if (selectedFiles.length > 0) {
+                documentTypes.forEach((type, index) => {
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: `document_types[${index}]`,
+                        value: type
+                    }).appendTo('#appointmentForm');
+                });
+            }
+
+            // If validation passes, submit the form
+            this.submit();
+        });
     </script>
 @endsection

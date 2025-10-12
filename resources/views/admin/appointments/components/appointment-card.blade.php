@@ -64,7 +64,7 @@
         @if($appointment->reason)
             <div class="mt-3">
                 <h6 class="text-muted mb-1">Reason for Visit</h6>
-                <p class="mb-0">{{ $appointment->reason }}</p>
+                <p class="mb-0">{!! $appointment->reason !!}</p>
             </div>
         @endif
 

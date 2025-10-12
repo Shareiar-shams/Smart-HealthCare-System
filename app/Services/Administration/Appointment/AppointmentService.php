@@ -161,32 +161,32 @@ class AppointmentService
         try {
             // Decode the time slot JSON
             $timeSlot = json_decode($data['time_slot'], true);
-            
+
             // Validate time slot availability
             $doctor = Doctor::findOrFail($data['doctor_id']);
             $date = Carbon::parse($data['date']);
             $existingAppointments = $this->getExistAppointmentsData($doctor, null, $date);
-            
+
             // Check for time slot conflicts
             $startTime = Carbon::parse($data['date'] . ' ' . $timeSlot['start']);
             $endTime = Carbon::parse($data['date'] . ' ' . $timeSlot['end']);
-            
+
             foreach ($existingAppointments as $existing) {
                 $existingStart = Carbon::parse($existing->time_start);
                 $existingEnd = Carbon::parse($existing->time_end);
-                
+
                 if ($startTime < $existingEnd && $endTime > $existingStart) {
                     throw new \Exception('Selected time slot is no longer available.');
                 }
             }
-            
+
             // Create the appointment
             $appointment = Appointment::create([
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => Auth::id(),
                 'appointment_date' => $data['date'],
-                'time_start' => $startTime,
-                'time_end' => $endTime,
+                'start_at' => $startTime,
+                'end_at' => $endTime,
                 'reason' => $data['reason'],
                 'notes' => $data['notes'] ?? null,
                 'status' => 'pending'
@@ -200,6 +200,7 @@ class AppointmentService
             throw new \Exception('Failed to create appointment: ' . $e->getMessage());
         }
     }
+
 
     public function updateAppointment(array $data, $appointment)
     {
@@ -223,8 +224,8 @@ class AppointmentService
 
             $appointment->update([
                 'appointment_date' => $data['date'],
-                'time_start' => $startTime,
-                'time_end' => $endTime,
+                'start_at' => $startTime,
+                'end_at' => $endTime,
                 'reason' => $data['reason'],
                 'notes' => $data['notes'] ?? null,
                 'status' => $data['status'] ?? $appointment->status

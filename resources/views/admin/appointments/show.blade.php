@@ -83,7 +83,7 @@
 
                             <div class="mb-3">
                                 <strong>Reason for Visit:</strong>
-                                <p class="mt-2">{{ $appointment->reason }}</p>
+                                <p class="mt-2">{!! $appointment->reason !!}</p>
                             </div>
                             @if($appointment->notes)
                             <div>

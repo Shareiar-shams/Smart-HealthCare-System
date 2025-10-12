@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Administration\Appointment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Appoinment\StoreAppointmentRequest;
 use App\Http\Requests\Administration\Appoinment\UpdateAppointmentRequest;
+use App\Http\Requests\Administration\Appointment\StoreAppointmentDocumentRequest;
 use App\Models\Appointment\Appointment;
 use App\Models\AppointmentDocument\AppointmentDocument;
 use App\Models\Doctor\Doctor;
@@ -81,8 +82,20 @@ class AppointmentController extends Controller
     public function store(StoreAppointmentRequest $request)
     {
         try {
-            $appointment = $this->appointmentService->createAppointment($request->validated());
-            
+            // Create appointment WITHOUT documents first
+            $appointmentData = $request->validated();
+
+            // Remove documents from appointment data if they exist
+            unset($appointmentData['documents']);
+            unset($appointmentData['document_types']);
+
+            $appointment = $this->appointmentService->createAppointment($appointmentData);
+
+            // Handle document uploads if files were provided
+            if ($request->hasFile('documents')) {
+                $this->handleDocumentUpload($request, $appointment);
+            }
+
             return redirect()->route('administration.appointment.myAppointments')->with([
                 'message' => 'Appointment booked successfully!',
                 'alert-type' => 'success'
@@ -96,15 +109,33 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Handle document upload for an appointment
+     */
+    private function handleDocumentUpload(StoreAppointmentRequest $request, Appointment $appointment)
+    {
+        $files = $request->file('documents');
+        $documentTypes = $request->input('document_types', []);
+
+        if (!$files) return;
+
+        foreach ($files as $index => $file) {
+            if ($file && !$file->getError()) {
+                $imageStore = $this->appointmentService->getImageService()->storeSingleImage($file, 'appointment_documents', null, null, null);
+
+                $appointment->documents()->create([
+                    'type' => $documentTypes[$index] ?? 'report',
+                    'file_path' => $imageStore,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+    }
+
+    /**
      * Store newly created documents in storage.
      */
-    public function documentsStore(Request $request, Appointment $appointment)
+    public function documentsStore(StoreAppointmentDocumentRequest $request, Appointment $appointment)
     {
-        $request->validate([
-            'type' => 'required|in:prescription,report,suggestion',
-            'files' => 'required|array',
-            'files.*' => 'file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max per file
-        ]);
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
@@ -139,13 +170,13 @@ class AppointmentController extends Controller
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
         try {
-            if (!$appointment->canBeEdited()) {
-                throw new \Exception('This appointment cannot be edited.');
-            }
+            // if (!$appointment->canBeEdited()) {
+            //     throw new \Exception('This appointment cannot be edited.');
+            // }
 
             $this->appointmentService->updateAppointment($request->validated(), $appointment);
             
-            return redirect()->route('administration.appointment.show', $appointment->id)->with([
+            return redirect()->route('administration.appointment.myAppointments')->with([
                 'message' => 'Appointment updated successfully!',
                 'alert-type' => 'success'
             ]);
