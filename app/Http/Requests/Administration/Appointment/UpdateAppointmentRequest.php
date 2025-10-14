@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Administration\Appoinment;
+namespace App\Http\Requests\Administration\Appointment;
 
 use Illuminate\Foundation\Http\FormRequest;
 
