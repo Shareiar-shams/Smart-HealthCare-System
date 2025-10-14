@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     include 'administration/dashboard/dashboard.php';
     include 'administration/appointment/appointment.php';
     include 'administration/prescription/prescription.php';
+    include 'administration/order/order.php';
     Route::prefix('')
         ->name('administration.')
         ->group(function () {
