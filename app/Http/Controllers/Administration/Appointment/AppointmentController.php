@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Administration\Appointment;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Administration\Appoinment\StoreAppointmentRequest;
-use App\Http\Requests\Administration\Appoinment\UpdateAppointmentRequest;
+use App\Http\Requests\Administration\Appointment\StoreAppointmentRequest;
+use App\Http\Requests\Administration\Appointment\UpdateAppointmentRequest;
 use App\Http\Requests\Administration\Appointment\StoreAppointmentDocumentRequest;
 use App\Models\Appointment\Appointment;
 use App\Models\AppointmentDocument\AppointmentDocument;
@@ -93,7 +93,7 @@ class AppointmentController extends Controller
 
             // Handle document uploads if files were provided
             if ($request->hasFile('documents')) {
-                $this->handleDocumentUpload($request, $appointment);
+                $this->appointmentService->handleDocumentUpload($request, $appointment);
             }
 
             return redirect()->route('administration.appointment.myAppointments')->with([
@@ -108,51 +108,36 @@ class AppointmentController extends Controller
         }
     }
 
-    /**
-     * Handle document upload for an appointment
-     */
-    private function handleDocumentUpload(StoreAppointmentRequest $request, Appointment $appointment)
-    {
-        $files = $request->file('documents');
-        $documentTypes = $request->input('document_types', []);
-
-        if (!$files) return;
-
-        foreach ($files as $index => $file) {
-            if ($file && !$file->getError()) {
-                $imageStore = $this->appointmentService->getImageService()->storeSingleImage($file, 'appointment_documents', null, null, null);
-
-                $appointment->documents()->create([
-                    'type' => $documentTypes[$index] ?? 'report',
-                    'file_path' => $imageStore,
-                    'file_name' => $file->getClientOriginalName(),
-                ]);
-            }
-        }
-    }
 
     /**
      * Store newly created documents in storage.
      */
     public function documentsStore(StoreAppointmentDocumentRequest $request, Appointment $appointment)
     {
+        try {
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $imageStore = $this->appointmentService->getImageService()->storeSingleImage($file, 'appointment_documents', null, null, null);
 
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $imageStore = $this->appointmentService->getImageService()->storeSingleImage($file, 'appointment_documents', null, null, null);
-
-                $appointment->documents()->create([
-                    'type' => $request->type,
-                    'file_path' => $imageStore,
-                    'file_name' => $file->getClientOriginalName(),
-                ]);
+                    $appointment->documents()->create([
+                        'type' => $request->type,
+                        'file_path' => $imageStore,
+                        'file_name' => $file->getClientOriginalName(),
+                    ]);
+                }
             }
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Documents uploaded successfully!'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Documents uploaded successfully!'
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to uploaded documents. ' . $e->getMessage(),
+            ]);
+        }
+        
     }
 
     // Show doctor detail and booking form

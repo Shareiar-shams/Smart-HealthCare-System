@@ -201,7 +201,28 @@ class AppointmentService
         }
     }
 
+    /**
+     * Handle document upload for an appointment
+     */
+    public function handleDocumentUpload($request, $appointment)
+    {
+        $files = $request->file('documents');
+        $documentTypes = $request->input('document_types', []);
 
+        if (!$files) return;
+
+        foreach ($files as $index => $file) {
+            if ($file && !$file->getError()) {
+                $imageStore = $this->imageService->storeSingleImage($file, 'appointment_documents', null, null, null);
+
+                $appointment->documents()->create([
+                    'type' => $documentTypes[$index] ?? 'report',
+                    'file_path' => $imageStore,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+    }
     public function updateAppointment(array $data, $appointment)
     {
         try {

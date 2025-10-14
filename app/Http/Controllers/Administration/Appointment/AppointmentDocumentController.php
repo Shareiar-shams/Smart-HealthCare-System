@@ -43,7 +43,6 @@ class AppointmentDocumentController extends Controller
             'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
         ]);
 
-        $path = $request->file('file')->store('appointment_documents', 'public');
         if ($request->file('file')) {
             $imageStore = $this->imageService->storeSingleImage($request->file('file'), 'categories', null, 600, 600);
         }
