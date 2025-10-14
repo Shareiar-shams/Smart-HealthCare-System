@@ -40,12 +40,46 @@
         #addModuleBtn:hover {
             color: #0a58ca;
         }
+
+        /* Module selection styling */
+        #permission_module_id {
+            border-width: 2px;
+        }
+
+        #permission_module_id:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        #permission_module_id.error {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        /* Alert styling */
+        #moduleAlert {
+            border-left: 4px solid #ffc107;
+        }
+
+        #moduleAlert .btn-close {
+            padding: 1.25rem 1rem;
+        }
     </style>
 @endsection
 
 @section('main_content')
 	<!-- Display Validation Error -->
 	@include('admin.validationError.error')
+
+	<!-- Module Selection Alert -->
+	<div id="moduleAlert" class="alert alert-warning alert-dismissible fade show d-none" role="alert" tabindex="-1" aria-hidden="true" aria-modal="true">
+		<i class="fas fa-exclamation-triangle me-2"></i>
+		<strong>Please select a module</strong> before creating permissions.
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">×</span>
+        </button>
+	</div>
+
     <!-- container-fluid -->
 	<div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -56,7 +90,7 @@
                 </a>
             </div>
         </div>
-        <form action="{{route('administration.settings.rolepermission.permission.store')}}" method="post">
+        <form action="{{route('administration.settings.rolepermission.permission.store')}}" method="post" id="permissionForm">
     		@csrf
         	<div class="row text-center">
 	          	<div class="col-md-12 col-sm-12">
@@ -168,7 +202,7 @@
             <div class="modal-content p-3 p-md-5">
                 <div class="modal-header">
                     <h4 class="modal-title">Add New Module</h4>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
@@ -182,13 +216,16 @@
                         <div id="addModuleErrors" class="col-12"></div>
                         <div class="col-12 mb-4">
                             <label class="form-label">Module Name <strong class="text-danger">*</strong></label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="Enter a Name" tabindex="-1" required/>
+                            <input type="text" name="name" value="{{ old('module_name', old('name')) }}" class="form-control" placeholder="Enter a Name" tabindex="-1" required/>
                             @error('name')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                            @error('module_name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="col-12 text-center mt-4">
-                            <button type="reset" class="btn btn-label-secondary" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                            <button type="reset" class="btn btn-label-secondary" data-dismiss="modal" aria-label="Close">Cancel</button>
                             <button type="submit" class="btn btn-primary me-sm-3 me-1">Create Module</button>
                         </div>
                     </form>
@@ -205,12 +242,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
+
             // Also open modal when clicking add buttons
             $('#addModuleBtn, #openAddModuleBtn').on('click', function () {
                 $('#addNewPermissionModuleModal').modal('show');
             });
-
 
             // "Everything" toggles all permission items
             $('#permissionEverything').on('change', function () {
@@ -222,6 +258,43 @@
             $('.permission-item').on('change', function () {
                 var all = $('.permission-item').length === $('.permission-item:checked').length;
                 $('#permissionEverything').prop('checked', all);
+            });
+
+            // Form validation for module selection
+            $('#permissionForm').on('submit', function(e) {
+                var selectedModule = $('#permission_module_id').val();
+
+                if (!selectedModule || selectedModule === '') {
+                    e.preventDefault(); // Stop form submission
+
+                    // Show alert
+                    $('#moduleAlert').removeClass('d-none');
+
+                    // Add error styling to select
+                    $('#permission_module_id').addClass('error');
+
+                    // Scroll to alert
+                    $('html, body').animate({
+                        scrollTop: $('#moduleAlert').offset().top - 20
+                    }, 500);
+
+                    // Focus on module select
+                    $('#permission_module_id').focus();
+
+                    return false;
+                }
+
+                // Hide alert and remove error styling if module is selected
+                $('#moduleAlert').addClass('d-none');
+                $('#permission_module_id').removeClass('error');
+            });
+
+            // Hide alert when module is selected
+            $('#permission_module_id').on('change', function() {
+                if ($(this).val() !== '' && $(this).val() !== null) {
+                    $('#moduleAlert').addClass('d-none');
+                    $(this).removeClass('error');
+                }
             });
         });
     </script>

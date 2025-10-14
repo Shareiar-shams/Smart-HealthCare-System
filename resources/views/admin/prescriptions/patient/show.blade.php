@@ -299,6 +299,25 @@
         <!-- Action Buttons -->
         <div class="row mt-4">
             <div class="col-12 text-center">
+                <!-- Order Medicine Button - Only show if user hasn't ordered yet -->
+                @php
+                    $existingOrder = \App\Models\MedicineOrder\MedicineOrder::where('prescription_id', $prescription->id)
+                                                                           ->where('patient_id', auth()->id())
+                                                                           ->first();
+                @endphp
+
+                @if(!$existingOrder)
+                    <a href="{{ route('administration.orders.pharmacy.select', $prescription->id) }}"
+                       class="btn btn-success btn-lg me-3">
+                        <i class="fas fa-shopping-cart me-2"></i>Order Medicine
+                    </a>
+                @else
+                    <a href="{{ route('administration.orders.show', $existingOrder->id) }}"
+                       class="btn btn-info btn-lg me-3">
+                        <i class="fas fa-eye me-2"></i>View Order
+                    </a>
+                @endif
+
                 <a href="{{ route('administration.prescriptions.pdf', $prescription->appointment_id) }}"
                    class="btn btn-primary btn-lg me-3" target="_blank">
                     <i class="fas fa-download me-2"></i>Download PDF

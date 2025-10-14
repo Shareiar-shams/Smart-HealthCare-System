@@ -40,7 +40,9 @@ class PermissionStoreRequest extends FormRequest
     public function messages()
     {
         return [
+            'permission_module_id.required' => 'Please select a permission module.',
             'permission_module_id.exists' => 'The selected permission module does not exist.',
+            'name.required' => 'Please select at least one permission.',
             'name.unique' => 'A permission with this name already exists in the selected module.',
         ];
     }
