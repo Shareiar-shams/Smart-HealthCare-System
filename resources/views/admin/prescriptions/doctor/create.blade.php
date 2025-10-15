@@ -207,9 +207,6 @@
                             <a href="{{ route('administration.appointment.myPatientsAppointments') }}" class="btn btn-secondary w-100 mb-3">
                                 <i class="fas fa-arrow-left me-2"></i>Back to Appointments
                             </a>
-                            <button type="button" class="btn btn-info w-100" onclick="previewPrescription()">
-                                <i class="fas fa-eye me-2"></i>Preview
-                            </button>
                         </div>
                     </div>
 
@@ -223,16 +220,16 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Paracetamol', '500mg', '3 days', 'Twice daily')">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Paracetamol', '500mg')">
                                     Paracetamol 500mg
                                 </button>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Amoxicillin', '250mg', '5 days', 'Three times daily')">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Amoxicillin', '250mg')">
                                     Amoxicillin 250mg
                                 </button>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Ibuprofen', '400mg', '3 days', 'As needed for pain')">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Ibuprofen', '400mg')">
                                     Ibuprofen 400mg
                                 </button>
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Cetirizine', '10mg', '7 days', 'Once daily at night')">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addCommonMedicine('Cetirizine', '10mg')">
                                     Cetirizine 10mg
                                 </button>
                             </div>
@@ -249,19 +246,19 @@
             <div class="row">
                 <div class="col-md-3">
                     <label class="form-label">Medicine Name <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][medicine_name]" placeholder="Medicine name" required>
+                    <input type="text" class="form-control" data-field="medicine_name" placeholder="Medicine name" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Dosage <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][dosage]" placeholder="e.g., 500mg" required>
+                    <input type="text" class="form-control" data-field="dosage" placeholder="e.g., 500mg" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Duration <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][duration]" placeholder="e.g., 7 days" required>
+                    <input type="text" class="form-control" data-field="duration" placeholder="e.g., 7 days" required>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Frequency <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="items[@{{ medicineIndex }}][frequency]" placeholder="e.g., Twice daily" required>
+                    <input type="text" class="form-control" data-field="frequency" placeholder="e.g., Twice daily" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">&nbsp;</label>
@@ -299,7 +296,7 @@ $(document).ready(function() {
             return false;
         }
 
-        const medicines = $('input[name*="[medicine_name]"]:visible');
+        const medicines = $('input[data-field="medicine_name"]:visible');
         if (medicines.length === 0 || !medicines.filter(function() { return $(this).val().trim(); }).length) {
             alert('Please add at least one medicine.');
             e.preventDefault();
@@ -309,20 +306,25 @@ $(document).ready(function() {
 });
 
 function addMedicineRow() {
-    const template = $('#medicineTemplate').html().replace(/\{\{medicineIndex\}\}/g, medicineIndex);
-    $('#medicinesContainer').append(template);
+    const template = $('#medicineTemplate').html();
+    const $template = $(template);
+
+    // Set the correct name attributes for this medicine index
+    $template.find('input[data-field]').each(function() {
+        const field = $(this).data('field');
+        $(this).attr('name', 'items[' + medicineIndex + '][' + field + ']');
+    });
+
+    $('#medicinesContainer').append($template);
     medicineIndex++;
     updateRemoveButtons();
 }
 
 function updateMedicineIndices() {
     $('#medicinesContainer .medicine-item').each(function(index) {
-        $(this).find('input').each(function() {
-            const name = $(this).attr('name');
-            if (name) {
-                const newName = name.replace(/items\[\d+\]/, 'items[' + index + ']');
-                $(this).attr('name', newName);
-            }
+        $(this).find('input[data-field]').each(function() {
+            const field = $(this).data('field');
+            $(this).attr('name', 'items[' + index + '][' + field + ']');
         });
     });
     updateRemoveButtons();
@@ -337,24 +339,47 @@ function updateRemoveButtons() {
     }
 }
 
-function addCommonMedicine(name, dosage, duration, frequency) {
-    addMedicineRow();
-    const lastMedicine = $('.medicine-item:last');
-    lastMedicine.find('input[name*="[medicine_name]"]').val(name);
-    lastMedicine.find('input[name*="[dosage]"]').val(dosage);
-    lastMedicine.find('input[name*="[duration]"]').val(duration);
-    lastMedicine.find('input[name*="[frequency]"]').val(frequency);
-}
+function addCommonMedicine(name, dosage) {
+    // Find all existing medicine name inputs
+    const medicineInputs = $('input[data-field="medicine_name"]');
 
-function previewPrescription() {
-    // Basic preview functionality - you can expand this
-    const diagnosis = $('#diagnosis').val();
-    if (!diagnosis.trim()) {
-        alert('Please enter a diagnosis first.');
-        return;
+    // Try to find the first empty one
+    const emptyInput = medicineInputs.filter(function() {
+        return !$(this).val().trim();
+    }).first();
+
+    if (medicineInputs.length === 0) {
+        // If there are no medicine rows at all, create the first one
+        addMedicineRow();
     }
 
-    alert('Preview functionality would show prescription preview here.');
+    // After ensuring at least one exists, fill the first empty one
+    setTimeout(function() {
+        const targetInput = $('input[data-field="medicine_name"]').filter(function() {
+            return !$(this).val().trim();
+        }).first();
+
+        // If still no empty row found (means all are filled), add a new one
+        if (targetInput.length === 0) {
+            addMedicineRow();
+        }
+
+        // Select again after possibly adding a new row
+        const finalInput = $('input[data-field="medicine_name"]').filter(function() {
+            return !$(this).val().trim();
+        }).first();
+        const parent = finalInput.closest('.medicine-item');
+
+        // Fill data
+        parent.find('input[data-field="medicine_name"]').val(name);
+        parent.find('input[data-field="dosage"]').val(dosage);
+        parent.find('input[data-field="duration"]').focus();
+
+        // Optional: highlight effect
+        parent.addClass('bg-light border border-primary');
+        setTimeout(() => parent.removeClass('bg-light border border-primary'), 800);
+    }, 10);
 }
+
 </script>
 @endsection
