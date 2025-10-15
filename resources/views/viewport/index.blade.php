@@ -52,7 +52,7 @@
 @endsection
 
 @section('content')
-    <div class="min-h-screen py-20 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
     
         <!-- Hero Section -->
         <section class="relative py-20 overflow-hidden">

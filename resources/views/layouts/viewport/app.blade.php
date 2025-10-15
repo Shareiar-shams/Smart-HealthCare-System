@@ -16,11 +16,6 @@
     <!-- Navigation Bar -->
     @include('layouts.viewport.partials_.navigation')
 
-    <!-- Add padding to the top of your main content to account for fixed nav -->
-    <div class="pt-20"> <!-- Adjust this value based on your nav height -->
-        <!-- Your page content goes here -->
-    </div>
-
     <!-- Main Content -->
     <main class="container mx-auto px-6 py-8">
         @yield('content')
