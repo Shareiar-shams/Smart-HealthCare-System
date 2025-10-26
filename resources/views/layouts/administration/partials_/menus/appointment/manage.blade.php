@@ -6,6 +6,7 @@ $isActive =
     Route::is('administration.appointment.myPatientsAppointments')
 ;
 @endphp
+@if(!auth()->user()->hasRole('Pharmacy'))
 <li class="nav-item {{ $isActive ? 'menu-open' : '' }}">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-user"></i>
@@ -52,3 +53,4 @@ $isActive =
         @endif
     </ul>
 </li>
+@endif

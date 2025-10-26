@@ -1,10 +1,10 @@
 @extends('layouts.administration.app')
 
-@section('admin_title_content')
+@section('title_content')
     {{config('app.name')}} || Manage Appointments
 @endsection
 
-@section('admin_content_header')
+@section('content_header')
     <div class="col-sm-6">
         <h1 class="m-0">{{__('Manage Appointments')}}</h1>
     </div>

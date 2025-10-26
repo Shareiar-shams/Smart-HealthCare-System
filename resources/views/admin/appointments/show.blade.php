@@ -1,11 +1,11 @@
 @extends('layouts.administration.app')
-@section('admin_title_content')
+@section('title_content')
     {{config('app.name')}} || Appointment Details
 @endsection
-@section('admin_meta')
+@section('meta_tags')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 @endsection
-@section('admin_content_header')
+@section('content_header')
     <div class="col-sm-6">
         <h1 class="m-0">{{__('Appointment Details')}}</h1>
     </div>

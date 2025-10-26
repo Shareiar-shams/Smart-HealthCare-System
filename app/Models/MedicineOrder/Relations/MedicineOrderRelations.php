@@ -4,6 +4,7 @@ namespace App\Models\MedicineOrder\Relations;
 
 use App\Models\Delivery\Delivery;
 use App\Models\OrderItem\OrderItem;
+use App\Models\Pharmacy\Pharmacy;
 use App\Models\Prescription\Prescription;
 use App\Models\User;
 
@@ -21,7 +22,7 @@ trait MedicineOrderRelations
 
     public function pharmacy()
     {
-        return $this->belongsTo(User::class, 'pharmacy_id');
+        return $this->belongsTo(Pharmacy::class, 'pharmacy_id');
     }
 
     public function items()

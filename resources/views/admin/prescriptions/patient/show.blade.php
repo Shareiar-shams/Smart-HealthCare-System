@@ -1,10 +1,10 @@
 @extends('layouts.administration.app')
 
-@section('admin_title_content')
+@section('title_content')
     {{config('app.name')}} || Prescription Details
 @endsection
 
-@section('admin_content_header')
+@section('content_header')
     <div class="col-sm-6">
         <h1 class="m-0">Prescription Details</h1>
     </div>
@@ -298,37 +298,45 @@
 
         <!-- Action Buttons -->
         <div class="row mt-4">
-            <div class="col-12 text-center">
-                <!-- Order Medicine Button - Only show if user hasn't ordered yet -->
-                @php
-                    $existingOrder = \App\Models\MedicineOrder\MedicineOrder::where('prescription_id', $prescription->id)
-                                                                           ->where('patient_id', auth()->id())
-                                                                           ->first();
-                @endphp
-
-                @if(!$existingOrder)
-                    <a href="{{ route('administration.orders.pharmacy.select', $prescription->id) }}"
-                       class="btn btn-success btn-lg me-3">
-                        <i class="fas fa-shopping-cart me-2"></i>Order Medicine
+            @if(auth()->user()->hasRole('Pharmacy'))
+                <div class="col-12 text-center">
+                    <a href="{{ route('administration.orders.pharmacy.index') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Order
                     </a>
-                @else
-                    <a href="{{ route('administration.orders.show', $existingOrder->id) }}"
-                       class="btn btn-info btn-lg me-3">
-                        <i class="fas fa-eye me-2"></i>View Order
-                    </a>
-                @endif
+                </div>
+            @else
+                <div class="col-12 text-center">
+                    <!-- Order Medicine Button - Only show if user hasn't ordered yet -->
+                    @php
+                        $existingOrder = \App\Models\MedicineOrder\MedicineOrder::where('prescription_id', $prescription->id)
+                                                                            ->where('patient_id', auth()->id())
+                                                                            ->first();
+                    @endphp
 
-                <a href="{{ route('administration.prescriptions.pdf', $prescription->appointment_id) }}"
-                   class="btn btn-primary btn-lg me-3" target="_blank">
-                    <i class="fas fa-download me-2"></i>Download PDF
-                </a>
-                <button onclick="window.print()" class="btn btn-secondary btn-lg me-3">
-                    <i class="fas fa-print me-2"></i>Print
-                </button>
-                <a href="{{ route('administration.prescriptions.index') }}" class="btn btn-outline-primary btn-lg">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Prescriptions
-                </a>
-            </div>
+                    @if(!$existingOrder)
+                        <a href="{{ route('administration.orders.pharmacy.select', $prescription->id) }}"
+                        class="btn btn-success btn-lg me-3">
+                            <i class="fas fa-shopping-cart me-2"></i>Order Medicine
+                        </a>
+                    @else
+                        <a href="{{ route('administration.orders.show', $existingOrder->id) }}"
+                        class="btn btn-info btn-lg me-3">
+                            <i class="fas fa-eye me-2"></i>View Order
+                        </a>
+                    @endif
+
+                    <a href="{{ route('administration.prescriptions.pdf', $prescription->appointment_id) }}"
+                    class="btn btn-primary btn-lg me-3" target="_blank">
+                        <i class="fas fa-download me-2"></i>Download PDF
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary btn-lg me-3">
+                        <i class="fas fa-print me-2"></i>Print
+                    </button>
+                    <a href="{{ route('administration.prescriptions.myPrescriptions') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Prescriptions
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 

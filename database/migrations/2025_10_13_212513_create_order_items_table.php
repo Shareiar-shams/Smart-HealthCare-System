@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('medicine_orders')->onDelete('cascade');
-            $table->string('delivery_address');
-            $table->string('contact_no');
-            $table->enum('status', ['Pending', 'Assigned', 'In Transit', 'Delivered', 'Cancelled'])->default('Pending');
-            $table->string('tracking_number')->nullable();
-            $table->timestamp('delivered_at')->nullable();
+            $table->string('medicine_name');
+            $table->string('dosage');
+            $table->integer('quantity');
+            $table->decimal('price', 8, 2);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -29,12 +29,15 @@ class MedicineOrder extends Model
     protected $casts = [];
 
     protected $fillable = [
-        'prescription_id', 
-        'patient_id', 
-        'pharmacy_id', 
+        'prescription_id',
+        'patient_id',
+        'pharmacy_id',
         'status',
-        'total_price', 
-        'payment_status', 
-        'payment_method'
+        'total_price',
+        'payment_status',
+        'payment_method',
+        'delivery_address',
+        'special_instructions',
+        'ordered_at'
     ];
 }

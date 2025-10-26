@@ -41,6 +41,7 @@
                 <li class="nav-header">Appointment</li>
                 @include('layouts.administration.partials_.menus.appointment.manage')
                 @include('layouts.administration.partials_.menus.prescription.manage')
+                @include('layouts.administration.partials_.menus.order.manage')
                 <li class="nav-header">Settings</li>
                 @include('layouts.administration.partials_.menus.system-user.manage')
                 @include('layouts.administration.partials_.menus.cache-clear')

@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Administration\Order;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Order\OrderStoreRequest;
 use App\Models\Prescription\Prescription;
 use App\Models\MedicineOrder\MedicineOrder;
-use App\Models\OrderItem\OrderItem;
-use App\Models\Pharmacy\Pharmacy;
 use App\Services\Administration\Order\MedicineOrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Exception;
 
 class MedicineOrderController extends Controller
@@ -23,14 +21,22 @@ class MedicineOrderController extends Controller
     }
 
     /**
-     * Display user's order history
+     * Display pharmacy orders
      */
     public function index()
     {
-        $orders = $this->medicineOrderService->getUserOrders();
-        return view('admin.orders.index', compact('orders'));
+        
     }
 
+    public function myorder(){
+        $orders = $this->medicineOrderService->getUserOrders();
+        return view('admin.orders.patient.index', compact('orders'));
+    }
+
+    public function pharmacyAllUserOrder(){
+        $orders = $this->medicineOrderService->getPharmacyOrders();
+        return view('admin.orders.pharmacy.index', compact('orders'));
+    }
     /**
      * Show pharmacy selection page for medicine order
      */
@@ -59,15 +65,8 @@ class MedicineOrderController extends Controller
     /**
      * Create medicine order from prescription
      */
-    public function createOrder(Request $request, $prescriptionId)
+    public function createOrder(OrderStoreRequest $request, $prescriptionId)
     {
-        $request->validate([
-            'pharmacy_id' => 'required|exists:pharmacies,id',
-            'payment_method' => 'required|in:cash,card,online',
-            'delivery_address' => 'required|string|max:500',
-            'special_instructions' => 'nullable|string|max:1000'
-        ]);
-
         try {
             $order = $this->medicineOrderService->createOrderFromPrescription(
                 $prescriptionId,
@@ -115,6 +114,19 @@ class MedicineOrderController extends Controller
     }
 
     /**
+     * Show order details for pharmacy
+     */
+    public function showForPharmacy($orderId)
+    {
+        try {
+            $order = $this->medicineOrderService->getOrderByIdForPharmacy($orderId);
+            return view('admin.orders.pharmacy.show', compact('order'));
+        } catch (Exception $e) {
+            abort(403, $e->getMessage());
+        }
+    }
+
+    /**
      * Cancel order
      */
     public function cancel($orderId)
@@ -146,8 +158,11 @@ class MedicineOrderController extends Controller
                 // You could save notes to an order_updates table here
                 $message .= '. Note: ' . $request->notes;
             }
-
-            return back()->with('success', $message);
+            $notofication = array(
+                'message' => $message,
+                'alert-type' => 'success'
+            );
+            return back()->with($notofication);
         } catch (Exception $e) {
             return back()->with('error', 'Failed to update order status: ' . $e->getMessage());
         }

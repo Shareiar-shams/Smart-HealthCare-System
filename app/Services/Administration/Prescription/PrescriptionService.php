@@ -11,6 +11,15 @@ class PrescriptionService
     public function getAllPrescriptions(){
         return Prescription::with(['doctor.user', 'patient.profile', 'items'])->latest()->paginate(12);
     }
+
+    public function getUserAllPrescriptions($userId)
+    {
+        return Prescription::with(['doctor.user', 'items', 'patient.profile'])
+            ->whereHas('patient', function ($query) use ($userId) {
+                $query->where('id', $userId);
+            })
+            ->get();
+    }
     public function getAppointmentWithPatients($appointmentId){
         return Appointment::with('patient')->findOrFail($appointmentId);
     }

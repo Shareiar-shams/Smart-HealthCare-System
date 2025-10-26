@@ -1,10 +1,10 @@
 @extends('layouts.administration.app')
 
-@section('admin_title_content')
+@section('title_content')
     {{config('app.name')}} || Order Confirmation
 @endsection
 
-@section('admin_content_header')
+@section('content_header')
     <div class="col-sm-6">
         <h1 class="m-0">Order Confirmation</h1>
     </div>
@@ -13,6 +13,26 @@
         ['label' => 'My Orders', 'url' => route('administration.orders.index')],
         ['label' => 'Order Confirmation'],
     ]" />
+@endsection
+@section('admin_page_css')
+    <style>
+    .medicine-card {
+        background: #f8f9fa;
+        border-left: 4px solid #264769;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+    }
+
+    .badge {
+        font-size: 0.8em;
+    }
+    </style>
 @endsection
 
 @section('main_content')
@@ -42,6 +62,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p class="mb-2"><strong>Order ID:</strong> #{{ $order->id }}</p>
+                            <p class="mb-2"><strong>Tracking ID:</strong> #{{ $order->delivery->tracking_number }}</p>
                             <p class="mb-2"><strong>Prescription ID:</strong> #{{ $order->prescription_id }}</p>
                             <p class="mb-2"><strong>Order Date:</strong> {{ $order->created_at->format('M d, Y h:i A') }}</p>
                             <p class="mb-2"><strong>Status:</strong>
@@ -83,12 +104,12 @@
                             </p>
                             <p class="mb-2">
                                 <i class="fas fa-phone me-1"></i>
-                                {{ $order->pharmacy->phone }}
+                                {{ $order->pharmacy->contact_no }}
                             </p>
-                            @if($order->pharmacy->email)
+                            @if($order->pharmacy->user->email)
                                 <p class="mb-0">
                                     <i class="fas fa-envelope me-1"></i>
-                                    {{ $order->pharmacy->email }}
+                                    {{ $order->pharmacy->user->email }}
                                 </p>
                             @endif
                         </div>
@@ -243,25 +264,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-@section('admin_page_css')
-<style>
-.medicine-card {
-    background: #f8f9fa;
-    border-left: 4px solid var(--bs-primary);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-}
-
-.badge {
-    font-size: 0.8em;
-}
-</style>
 @endsection

@@ -26,6 +26,10 @@ class PrescriptionController extends Controller
         return view('admin.prescriptions.index', compact('prescriptions'));
     }
 
+    public function myPrescriptions(){
+        $prescriptions = $this->prescriptionService->getUserAllPrescriptions(auth()->user()->id);
+        return view('admin.prescriptions.patient.myindex', compact('prescriptions'));
+    }
     /**
      * Show the form for creating a new resource.
      */

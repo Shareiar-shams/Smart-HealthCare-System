@@ -9,8 +9,7 @@
     <!-- breadcrumb -->
     <x-ad-breadcrumb :items="[
         ['label' => 'Dashboard', 'url' => route('dashboard')],
-        ['label' => 'All Prescriptions', 'url' => route('administration.prescriptions.index')],
-        ['label' => 'Manage'],
+        ['label' => 'Manage Prescription'],
     ]" />
 @endsection
 
@@ -47,46 +46,7 @@
 
 @section('main_content')
     <div class="container-fluid">
-        <!-- Stats Overview -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
-                        <h6 class="card-title">Total Prescriptions</h6>
-                        <h2 class="mb-0">{{ $prescriptions->total() }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <h6 class="card-title">This Month</h6>
-                        <h2 class="mb-0">{{ $prescriptions->filter(function($prescription) {
-                            return $prescription->created_at >= now()->startOfMonth();
-                        })->count() }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body">
-                        <h6 class="card-title">Active Doctors</h6>
-                        <h2 class="mb-0">{{ $prescriptions->pluck('doctor.user')->unique('id')->count() }}</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-warning text-dark">
-                    <div class="card-body">
-                        <h6 class="card-title">This Week</h6>
-                        <h2 class="mb-0">{{ $prescriptions->filter(function($prescription) {
-                            return $prescription->created_at >= now()->startOfWeek();
-                        })->count() }}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -95,34 +55,7 @@
                             <div class="col-md-6">
                                 <h3 class="card-title mb-0">All Prescriptions</h3>
                             </div>
-                            <div class="col-md-6">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <select id="statusFilter" class="form-select input-group-sm select2bs4" style="width: auto;">
-                                        <option value="">All Status</option>
-                                        <option value="active">Active</option>
-                                    </select>
-                                    <select id="doctorFilter" class="form-select input-group-sm select2bs4" style="width: auto;">
-                                        <option value="">All Doctors</option>
-                                        @php
-                                            $uniqueDoctors = $prescriptions->map(function($prescription) {
-                                                return [
-                                                    'id' => $prescription->doctor->user->id,
-                                                    'name' => $prescription->doctor->user->name
-                                                ];
-                                            })->unique('id')->sortBy('name');
-                                        @endphp
-                                        @foreach($uniqueDoctors as $doctor)
-                                            <option value="{{ $doctor['id'] }}">{{ $doctor['name'] }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="input-group">
-                                        <input type="text" id="searchInput" class="form-control" placeholder="Search prescriptions...">
-                                        <button type="button" class="btn btn-outline-secondary">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                           
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -229,13 +162,6 @@
                     </div>
                     <!-- /.card-body -->
 
-                    @if($prescriptions->hasPages())
-                        <div class="card-footer">
-                            <div class="d-flex justify-content-center">
-                                {{ $prescriptions->links() }}
-                            </div>
-                        </div>
-                    @endif
                 </div>
                 <!-- /.card -->
             </div>
@@ -249,78 +175,5 @@
 @section('admin_page_js')
 @include('admin.additionalObject.createDocumentScript')
 @include('admin.additionalObject.datatable-js')
-<script>
-$(document).ready(function() {
-    // Filter functionality
-    function applyFilters() {
-        const searchTerm = $('#searchInput').val().toLowerCase();
-        const statusFilter = $('#statusFilter').val().toLowerCase();
-        const doctorFilter = $('#doctorFilter').val();
 
-        $('.prescription-card').each(function() {
-            const card = $(this);
-            const text = card.text().toLowerCase();
-            const cardDoctorId = card.data('doctor-id');
-
-            let showCard = true;
-
-            // Search filter
-            if (searchTerm && !text.includes(searchTerm)) {
-                showCard = false;
-            }
-
-            // Status filter
-            if (statusFilter && !card.hasClass('status-' + statusFilter)) {
-                showCard = false;
-            }
-
-            // Doctor filter
-            if (doctorFilter && cardDoctorId != doctorFilter) {
-                showCard = false;
-            }
-
-            if (showCard) {
-                card.show();
-            } else {
-                card.hide();
-            }
-        });
-
-        // Update visible count
-        updateVisibleCount();
-    }
-
-    function updateVisibleCount() {
-        const visibleCards = $('.prescription-card:visible').length;
-        const totalCards = $('.prescription-card').length;
-
-        if (visibleCards === 0 && totalCards > 0) {
-            $('.prescription-card').first().closest('.card-body').append(`
-                <div class="no-results text-center py-4" style="display: block;">
-                    <i class="fas fa-search text-muted mb-3" style="font-size: 2rem;"></i>
-                    <p class="text-muted mb-0">No prescriptions match your search criteria.</p>
-                </div>
-            `);
-        } else {
-            $('.no-results').remove();
-        }
-    }
-
-    // Event listeners
-    $('#searchInput').on('keyup', applyFilters);
-    $('#statusFilter').on('change', applyFilters);
-    $('#doctorFilter').on('change', applyFilters);
-
-    // Initialize doctor IDs on cards
-    $('.prescription-card').each(function() {
-        const doctorName = $(this).find('.card-body').text();
-        const doctorMatch = doctorName.match(/Dr\.\s+([^\n\r]+)/);
-        if (doctorMatch) {
-            const doctorText = doctorMatch[1].trim();
-            // You might want to add data attribute based on actual doctor ID
-            // For now, we'll use a simple text-based filter
-        }
-    });
-});
-</script>
 @endsection

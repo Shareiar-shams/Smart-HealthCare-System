@@ -10,8 +10,7 @@
     </div>
     <x-ad-breadcrumb :items="[
         ['label' => 'Dashboard', 'url' => route('dashboard')],
-        ['label' => 'Orders', 'url' => route('administration.orders.index')],
-        ['label' => 'My Orders'],
+        ['label' => 'My Orders']
     ]" />
 @endsection
 @section('admin_page_css')
@@ -66,7 +65,7 @@
                                                     <small class="text-muted">Prescription #{{ $order->prescription_id }}</small>
                                                 </td>
                                                 <td>{{ $order->created_at->format('M d, Y') }}</td>
-                                                <td>{{ $order->pharmacy->name ?? 'N/A' }}</td>
+                                                <td>{{ $order->pharmacy->pharmacy_name ?? 'N/A' }}</td>
                                                 <td>
                                                     @php
                                                         $statusColors = [
@@ -144,7 +143,7 @@
         </div>
 
         <!-- Order Status Legend -->
-        <div class="row mt-4">
+        {{-- <div class="row mt-4">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-light">
@@ -175,7 +174,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 @endsection
 

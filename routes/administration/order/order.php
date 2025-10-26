@@ -26,18 +26,28 @@ Route::prefix('/orders')->controller(MedicineOrderController::class)
             ->name('show')
             ->can('Medicine Order Read');
 
+        // Pharmacy order details
+        Route::get('/pharmacy/show/{order}', 'showForPharmacy')
+            ->name('pharmacy.show')
+            ->can('Medicine Order Read');
+
         // Cancel order
         Route::post('/cancel/{order}', 'cancel')
             ->name('cancel')
             ->can('Medicine Order Update');
-
+          
         // Update order status (for pharmacy/admin)
         Route::post('/update-status/{order}', 'updateStatus')
             ->name('update.status')
             ->can('Medicine Order Update');
 
         // Order history/index (for patients to see all their orders)
-        Route::get('/my-orders', 'index')
-            ->name('index')
+        Route::get('/my-orders', 'myorder')
+            ->name('myorder')
+            ->can('Medicine Order Read');
+
+        // Pharmacy orders index
+        Route::get('/pharmacy', 'pharmacyAllUserOrder')
+            ->name('pharmacy.index')
             ->can('Medicine Order Read');
     });

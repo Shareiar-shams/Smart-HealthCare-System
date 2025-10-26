@@ -1,16 +1,18 @@
 @extends('layouts.administration.app')
 
-@section('admin_title_content')
+@section('title_content')
     {{config('app.name')}} || Dashboard
 @endsection
 
-@section('admin_content_header')
+@section('content_header')
     <div class="col-sm-6">
         <h1 class="m-0">
             @if(auth()->user()->hasRole('Patient'))
                 <i class="fas fa-user-circle me-2"></i>Patient Dashboard
             @elseif(auth()->user()->hasRole('Doctor'))
                 <i class="fas fa-user-md me-2"></i>Doctor Dashboard
+            @elseif(auth()->user()->hasRole('Pharmacy'))
+                <i class="fas fa-pills me-2"></i>Pharmacy Dashboard
             @else
                 <i class="fas fa-crown me-2"></i>Admin Dashboard
             @endif
@@ -117,6 +119,8 @@
                             <i class="fas fa-user-circle ms-2"></i>
                         @elseif(auth()->user()->hasRole('Doctor'))
                             <i class="fas fa-user-md ms-2"></i>
+                        @elseif(auth()->user()->hasRole('Pharmacy'))
+                            <i class="fas fa-pills ms-2"></i>
                         @else
                             <i class="fas fa-crown ms-2"></i>
                         @endif
@@ -148,6 +152,9 @@
         @elseif(auth()->user()->hasRole('Patient'))
             {{-- Patient Dashboard --}}
             @include('admin.dashboard.partials.patient_dashboard')
+        @elseif(auth()->user()->hasRole('Pharmacy'))
+            {{-- Pharmacy Dashboard --}}
+            @include('admin.dashboard.partials.pharmacy_dashboard')
         @endif
 
         <!-- Recent Activities (All Roles) -->

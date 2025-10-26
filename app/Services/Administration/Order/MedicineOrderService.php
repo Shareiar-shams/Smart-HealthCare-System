@@ -2,11 +2,13 @@
 
 namespace App\Services\Administration\Order;
 
+use App\Models\Delivery\Delivery;
 use App\Models\Prescription\Prescription;
 use App\Models\MedicineOrder\MedicineOrder;
 use App\Models\OrderItem\OrderItem;
 use App\Models\Pharmacy\Pharmacy;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class MedicineOrderService
@@ -23,15 +25,44 @@ class MedicineOrderService
     }
 
     /**
+     * Get all orders for current pharmacy user
+     */
+    public function getPharmacyOrders()
+    {
+        $pharmacyId = Auth::user()->pharmacy->id;
+        return MedicineOrder::with(['prescription', 'patient', 'items'])
+                           ->where('pharmacy_id', $pharmacyId)
+                           ->orderBy('created_at', 'desc')
+                           ->paginate(10);
+    }
+
+    /**
      * Get order by ID with authorization check
      */
     public function getOrderById($orderId)
     {
         $order = MedicineOrder::with(['prescription.items', 'pharmacy', 'items', 'patient'])
-                              ->findOrFail($orderId);
+                               ->findOrFail($orderId);
 
         // Check if order belongs to current user
         if ($order->patient_id !== Auth::id()) {
+            throw new \Exception('Unauthorized access to order');
+        }
+
+        return $order;
+    }
+
+    /**
+     * Get order by ID for pharmacy with authorization check
+     */
+    public function getOrderByIdForPharmacy($orderId)
+    {
+        $order = MedicineOrder::with(['prescription.items', 'pharmacy', 'items', 'patient'])
+                               ->findOrFail($orderId);
+
+        // Check if order belongs to current user's pharmacy
+        $pharmacyId = Auth::user()->pharmacy->id;
+        if ($order->pharmacy_id !== $pharmacyId) {
             throw new \Exception('Unauthorized access to order');
         }
 
@@ -86,6 +117,14 @@ class MedicineOrderService
                 ]);
             }
 
+            Delivery::create([
+                'order_id' => $order->id,
+                'delivery_address' => $deliveryAddress,
+                'contact_no' => Auth::user()->profile->contact_no,
+                'status' => 'pending',
+                'tracking_number' => $this->generateTrackingNumber()
+            ]);
+
             return $order;
         });
     }
@@ -118,6 +157,12 @@ class MedicineOrderService
     public function updateOrderStatus($orderId, $status)
     {
         $order = MedicineOrder::findOrFail($orderId);
+
+        // Check if order belongs to current user's pharmacy
+        $pharmacyId = Auth::user()->pharmacy->id;
+        if ($order->pharmacy_id !== $pharmacyId) {
+            throw new \Exception('Unauthorized access to order');
+        }
 
         // Validate status transition
         $validStatuses = ['pending', 'processing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'];
@@ -204,5 +249,21 @@ class MedicineOrderService
         return Pharmacy::whereHas('user', function ($query) {
             $query->where('status', true);
         })->get();
+    }
+
+    /**
+     * Get Tracking Number
+     */
+    private function generateTrackingNumber()
+    {
+        $prefix = 'DLV-';
+        $unique = strtoupper(Str::random(8)); // Example: DLV-AB12CD34
+
+        // Ensure uniqueness
+        while (Delivery::where('tracking_number', $prefix . $unique)->exists()) {
+            $unique = strtoupper(Str::random(8));
+        }
+
+        return $prefix . $unique;
     }
 }

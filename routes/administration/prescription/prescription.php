@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/prescription')->controller(PrescriptionController::class)
     ->name('administration.prescriptions.')
     ->group(function (){
-        Route::get('/index', 'index')->name('index')->can('Prescription Read');
+        Route::get('/index', 'index')->name('index')->can('Prescription Everything');
+        Route::get('/my/prescriptions', 'myPrescriptions')->name('myPrescriptions')->can('Prescription Read');
         Route::get('/create/{id}', 'create')->name('create')->can('Prescription Create');
         Route::post('/store', 'store')->name('store')->can('Prescription Create');
         Route::get('/{appointment}/show', 'show')->name('show')->can('Prescription Read');

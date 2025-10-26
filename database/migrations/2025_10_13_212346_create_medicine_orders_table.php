@@ -13,13 +13,16 @@ return new class extends Migration
     {
         Schema::create('medicine_orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('prescription_id')->constrained()->onDelete('cascade');
+            $table->foreignId('prescription_id')->constrained('prescriptions')->onDelete('cascade');
             $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('pharmacy_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->enum('status', ['Pending', 'Accepted', 'Processing', 'Ready for Delivery', 'Delivered', 'Cancelled'])->default('Pending');
+            $table->foreignId('pharmacy_id')->nullable()->constrained('pharmacies')->onDelete('set null');
+            $table->enum('status', ['pending', 'processing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'])->default('pending');
             $table->decimal('total_price', 10, 2)->default(0);
-            $table->string('payment_status')->default('Unpaid');
-            $table->string('payment_method')->nullable(); 
+            $table->enum('payment_status', ['pending', 'paid', 'failed'])->default('pending');
+            $table->enum('payment_method', ['cash', 'card', 'online'])->nullable();
+            $table->text('delivery_address')->nullable();
+            $table->text('special_instructions')->nullable();
+            $table->timestamp('ordered_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

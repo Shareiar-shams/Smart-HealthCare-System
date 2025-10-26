@@ -10,7 +10,7 @@
     </div>
     <x-ad-breadcrumb :items="[
         ['label' => 'Dashboard', 'url' => route('dashboard')],
-        ['label' => 'My Orders', 'url' => route('administration.orders.myorder')],
+        ['label' => 'Orders', 'url' => route('administration.orders.pharmacy.index')],
         ['label' => 'Order Details'],
     ]" />
 @endsection
@@ -333,24 +333,9 @@
         <!-- Action Buttons -->
         <div class="row">
             <div class="col-12 text-center">
-                @if($order->status === 'pending')
-                    <form action="{{ route('administration.orders.cancel', $order->id) }}"
-                        method="POST"
-                        class="d-inline"
-                        onsubmit="return confirm('Are you sure you want to cancel this order?')">
-                        @csrf
-                        <button type="submit" class="btn btn-danger btn-lg me-3">
-                            <i class="fas fa-times me-2"></i>Cancel Order
-                        </button>
-                    </form>
-                @endif
 
-                <a href="{{ route('administration.orders.myorder') }}" class="btn btn-outline-primary btn-lg me-3">
-                    <i class="fas fa-list me-2"></i>My Orders
-                </a>
-
-                <a href="{{ route('administration.prescriptions.show', $order->prescription->appointment_id ?? '#' ) }}" class="btn btn-outline-secondary btn-lg">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Prescription
+                <a href="{{ route('administration.orders.pharmacy.index') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Previous
                 </a>
             </div>
         </div>
