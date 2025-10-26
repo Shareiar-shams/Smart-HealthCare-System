@@ -26,7 +26,7 @@ A comprehensive Laravel-based healthcare management system designed for hospital
 ## ✨ Features
 
 ### 👥 User Management
-- **Multi-role Authentication** (Super Admin, Doctor, Patient)
+- **Multi-role Authentication** (Super Admin, Doctor, Patient, Pharmacy)
 - **Role-based Access Control** (RBAC)
 - **User Profiles** with detailed information
 - **Secure Password Management**
@@ -203,6 +203,7 @@ The system uses Laravel Permission package for role management:
 php artisan permission:create-role Super\ Admin
 php artisan permission:create-role Doctor
 php artisan permission:create-role Patient
+php artisan permission:create-role Pharmacy
 ```
 
 ### File Upload Configuration
@@ -217,6 +218,7 @@ php artisan permission:create-role Patient
 1. **Super Admin**: First user registered becomes Super Admin
 2. **Doctor Registration**: Requires approval from Super Admin
 3. **Patient Registration**: Self-registration available
+4. **Pharmacy Registration**: Requires approval from Super Admin
 
 ### 📅 Appointment Booking
 
@@ -232,6 +234,14 @@ php artisan permission:create-role Patient
 - **Manage patient records**
 - **Update appointment status**
 - **Access patient documents**
+
+### 💊 Pharmacy Dashboard
+
+- **View and manage orders**
+- **Process prescriptions**
+- **Track order status** (Pending, Completed)
+- **Access patient order history**
+- **Quick actions for order fulfillment**
 
 ### 🔐 Admin Panel
 
@@ -301,6 +311,13 @@ healthcare-management-system/
 - Document upload
 - Profile management
 - Appointment history
+
+### Pharmacy
+- Order management and fulfillment
+- Prescription processing
+- Inventory tracking (if applicable)
+- Patient order history
+- Profile management
 
 ## 🔌 API Endpoints
 
